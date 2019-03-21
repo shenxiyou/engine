@@ -163,6 +163,7 @@ cc.TMXTilesetInfo = function () {
     this.margin = 0;
     // Texture containing the tiles (should be sprite sheet / texture atlas)
     this.sourceImage = null;
+    this.images = {};
     // Size in pixels of the image
     this.imageSize = cc.size(0, 0);
 
@@ -188,6 +189,10 @@ cc.TMXTilesetInfo.prototype = {
         rect.x = parseInt((gid % max_x) * (this._tileSize.width + this.spacing) + this.margin, 10);
         rect.y = parseInt(parseInt(gid / max_x, 10) * (this._tileSize.height + this.spacing) + this.margin, 10);
         return rect;
+    },
+    getImageByGid(gid) {
+        gid = gid - parseInt(this.firstGid, 10);
+        return this.images[gid];
     }
 };
 
@@ -607,15 +612,15 @@ cc.TMXMapInfo.prototype = {
         // PARSE <map>
         let map = mapXML.documentElement;
 
-        let version = map.getAttribute('version');
+        // let version = map.getAttribute('version');
         let orientationStr = map.getAttribute('orientation');
         let staggerAxisStr = map.getAttribute('staggeraxis');
         let staggerIndexStr = map.getAttribute('staggerindex');
         let hexSideLengthStr = map.getAttribute('hexsidelength');
 
         if (map.nodeName === "map") {
-            if (version !== "1.0" && version !== null)
-                cc.logID(7216, version);
+            // if (version !== "1.0" && version !== null)
+            //     cc.logID(7216, version);
 
             if (orientationStr === "orthogonal")
                 this.orientation = cc.TiledMap.Orientation.ORTHO;
@@ -692,7 +697,8 @@ cc.TMXMapInfo.prototype = {
                 tilesetSize.height = parseFloat(selTileset.getAttribute('tileheight'));
                 tileset._tileSize = tilesetSize;
 
-                let image = selTileset.getElementsByTagName('image')[0];
+                let images = selTileset.getElementsByTagName('image');
+                let image = images[0];
                 let imagename = image.getAttribute('source');
                 imagename.replace(/\\/g, '\/');
                 tileset.sourceImage = this._textures[imagename];
@@ -716,6 +722,16 @@ cc.TMXMapInfo.prototype = {
                     for (let tIdx = 0; tIdx < tiles.length; tIdx++) {
                         let t = tiles[tIdx];
                         this.parentGID = parseInt(tileset.firstGid) + parseInt(t.getAttribute('id') || 0);
+                        let images = t.getElementsByTagName("image");
+                        if(images && images.length > 0) {
+                            for(let i = 0;i < images.length;i++) {
+                                let img = images[i];
+                                let n = img.getAttribute('source');
+                                n.replace(/\\/g, '\/');
+                                let sourceImage = this._textures[n];
+                                tileset.images[t.getAttribute("id")] = sourceImage;
+                            }
+                        }
                         this._tileProperties[this.parentGID] = getPropertyList(t);
                     }
                 }
@@ -769,7 +785,7 @@ cc.TMXMapInfo.prototype = {
             layer._opacity = parseInt(255 * parseFloat(opacity));
         else
             layer._opacity = 255;
-        layer.offset = cc.v2(parseFloat(selLayer.getAttribute('x')) || 0, parseFloat(selLayer.getAttribute('y')) || 0);
+        layer.offset = cc.v2(parseFloat(selLayer.getAttribute('offsetx')) || 0, parseFloat(selLayer.getAttribute('offsety')) || 0);
 
         let nodeValue = '';
         for (let j = 0; j < data.childNodes.length; j++) {

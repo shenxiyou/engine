@@ -79,5 +79,6 @@
     "./extensions/anysdk/*.js",
     "./extensions/ccpool/*.js",
     "./extensions/spine/*.js",
-    "./extensions/dragonbones/*.js"
+    "./extensions/dragonbones/*.js",
+    "./extensions/spriter/*.js"
 ]

@@ -48,7 +48,9 @@ var jsbSkipModules = [
     '../../extensions/dragonbones/CCArmatureDisplay.js',
     '../../extensions/dragonbones/CCFactory.js',
     '../../extensions/dragonbones/CCSlot.js',
-    '../../extensions/dragonbones/CCTextureData.js'
+    '../../extensions/dragonbones/CCTextureData.js',
+    '../../extensions/spriter/lib/spriter-js.js',
+
 ];
 var jsbAliasify = {
     replacements: {

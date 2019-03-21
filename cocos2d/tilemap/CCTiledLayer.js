@@ -519,8 +519,9 @@ let TiledLayer = cc.Class({
         }
 
         // offset (after layer orientation is set);
-        this._offset = this._calculateLayerOffset(layerInfo.offset);
-
+        let _offset = layerInfo.offset;//this._calculateLayerOffset(layerInfo.offset);
+        this._offset = cc.v2(0,0);
+        this.node.position = cc.v2(_offset.x, -_offset.y);
         if (this._layerOrientation === cc.TiledMap.Orientation.HEX) {
             let width = 0, height = 0;
             if (this._staggerAxis === cc.TiledMap.StaggerAxis.STAGGERAXIS_X) {

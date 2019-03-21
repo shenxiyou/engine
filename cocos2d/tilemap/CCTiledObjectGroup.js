@@ -118,7 +118,7 @@ let TiledObjectGroup = cc.Class({
 
     _init (groupInfo, mapInfo) {
         this._groupName = groupInfo.name;
-        this._positionOffset = groupInfo.offset;
+        this._positionOffset = cc.v2(groupInfo.offset.x,-groupInfo.offset.y);
         this._mapInfo = mapInfo;
         this._properties = groupInfo.getProperties();
 

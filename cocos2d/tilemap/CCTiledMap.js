@@ -522,6 +522,7 @@ let TiledMap = cc.Class({
                     if (!layer) {
                         layer = child.addComponent(cc.TiledLayer);
                     }
+                    child.opacity = layerInfo._opacity;
 
                     let tileset = this._tilesetForLayer(layerInfo, mapInfo);
                     layer._init(tileset, layerInfo, mapInfo);

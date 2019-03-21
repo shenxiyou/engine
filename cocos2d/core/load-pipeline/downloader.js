@@ -165,6 +165,7 @@ var defaultMap = {
     'tmx' : downloadText,
     'tsx' : downloadText,
 
+    'scon' : downloadText,
     'json' : downloadText,
     'ExportJson' : downloadText,
     'plist' : downloadText,
