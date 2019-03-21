@@ -284,7 +284,6 @@ var AssetLibrary = {
         _libraryBase = cc.path.stripSep(libraryPath) + '/';
 
         _rawAssetsBase = options.rawAssetsBase;
-
         if (options.subpackages) {
             var subPackPipe = new SubPackPipe(options.subpackages);
             cc.loader.insertPipeAfter(cc.loader.assetLoader, subPackPipe);
@@ -360,7 +359,7 @@ var AssetLibrary = {
             Editor.metas['spriter'] = Editor.require('unpack://engine/extensions/spriter/editor/spriter');
             Editor.assets["spriter"] = cc.SpriterAsset;
             Editor.metas['spriter']['asset-icon'] = 'unpack://engine/extensions/spriter/editor/spriter.png';
-            Editor.assettype2name['cc.SpriterAsset'] = 'spriter';
+            if(Editor.assettype2name) Editor.assettype2name['cc.SpriterAsset'] = 'spriter';
         }
         
     }

@@ -14,12 +14,11 @@ let AnimationCache = cc.Class({
     update(pose) {
         pose.setAnim(this._animationName);
         let len = pose.getAnimLength();
-        let _currentAnimationTime = 0;
+        let _currentAnimationTime = -1;
         let frameIdx = 0;
         let totalTime = 0;
         let _isCompleted = false;
         do {
-            pose.update(_frameTime);
             pose.strike();
             this._updateFrame(pose, frameIdx);
             frameIdx++;
@@ -30,6 +29,7 @@ let AnimationCache = cc.Class({
                 _isCompleted = true;
             }
             totalTime += _frameTime;
+            pose.update(_frameTime);
         } while (!_isCompleted && totalTime < len);
         this.totalTime = len / 1000;
         // Update frame length.
