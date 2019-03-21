@@ -663,8 +663,14 @@ var SpriteObject = /** @class */ (function (_super) {
         _this.pivot = new Pivot();
         _this.z_index = 0;
         _this.alpha = 1.0;
+        _this.imgKey = "";
         return _this;
     }
+    SpriteObject.prototype.clone = function (other) {
+        this.copy(other);
+        this.name = other.name;
+        this.imgKey = other.imgKey;
+    },
     SpriteObject.prototype.load = function (json) {
         _super.prototype.load.call(this, json);
         this.parent_index = loadInt(json, 'parent', -1);
@@ -1807,6 +1813,11 @@ var Pose = /** @class */ (function () {
         }
         return null;
     };
+    Pose.prototype.getImageKey = function(object) {
+        const folder = this.data.folder_array[object.folder_index];
+        const file = folder.file_array[object.file_index];
+        return file.name;
+    };
     Pose.prototype.curEntity = function () {
         var entity_map = this.data.entity_map;
         return entity_map && entity_map[this.entity_key];
@@ -2000,6 +2011,7 @@ var Pose = /** @class */ (function () {
                         pose_sprite.copy(sprite_timeline_keyframe1.sprite).tween(sprite_timeline_keyframe2.sprite, pct, timeline_keyframe1.spin);
                         pose_sprite.name = timeline.name; // set name from timeline
                         pose_sprite.parent_index = data_object.parent_index; // set parent from object_ref
+                        pose_sprite.imgKey = pose.getImageKey(pose_sprite);
                         break;
                     case 'bone':
                         var pose_bone = (pose_object_array_1[object_index] = (pose_object_array_1[object_index] || new Bone()));
@@ -2008,7 +2020,6 @@ var Pose = /** @class */ (function () {
                         pose_bone.copy(bone_timeline_keyframe1.bone).tween(bone_timeline_keyframe2.bone, pct, timeline_keyframe1.spin);
                         pose_bone.name = timeline.name; // set name from timeline
                         pose_bone.parent_index = data_object.parent_index; // set parent from object_ref
-                        console.log(pose_bone);
                         break;
                     case 'box':
                         var pose_box = (pose_object_array_1[object_index] = (pose_object_array_1[object_index] || new BoxObject()));

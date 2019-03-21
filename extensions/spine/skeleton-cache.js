@@ -407,16 +407,16 @@ let AnimationCache = cc.Class({
 let SkeletonCache = cc.Class({
     ctor () {
         this._animationPool = {};
-        this._skeletonCache = {};
+        this._spriterCache = {};
     },
 
     clear () {
         this._animationPool = {};
-        this._skeletonCache = {};
+        this._spriterCache = {};
     },
 
     removeSkeleton (uuid) {
-        var skeletonInfo = this._skeletonCache[uuid];
+        var skeletonInfo = this._spriterCache[uuid];
         if (!skeletonInfo) return;
         let animationsCache = skeletonInfo.animationsCache;
         for (var aniKey in animationsCache) {
@@ -428,11 +428,11 @@ let SkeletonCache = cc.Class({
             animationCache.clear();
         }
 
-        delete this._skeletonCache[uuid];
+        delete this._spriterCache[uuid];
     },
 
     resetSkeleton (uuid) {
-        var skeletonInfo = this._skeletonCache[uuid];
+        var skeletonInfo = this._spriterCache[uuid];
         if (!skeletonInfo) return;
         let animationsCache = skeletonInfo.animationsCache;
         for (var aniKey in animationsCache) {
@@ -446,7 +446,7 @@ let SkeletonCache = cc.Class({
     },
 
     getSkeletonCache (uuid, skeletonData) {
-        let skeletonInfo = this._skeletonCache[uuid];
+        let skeletonInfo = this._spriterCache[uuid];
         if (!skeletonInfo) {
             let skeleton = new spine.Skeleton(skeletonData);
             let clipper = new spine.SkeletonClipping();
@@ -455,7 +455,7 @@ let SkeletonCache = cc.Class({
             let listener = new TrackEntryListeners();
             state.addListener(listener);
 
-            this._skeletonCache[uuid] = skeletonInfo = {
+            this._spriterCache[uuid] = skeletonInfo = {
                 skeleton : skeleton,
                 clipper : clipper,
                 state : state,
@@ -469,7 +469,7 @@ let SkeletonCache = cc.Class({
     },
 
     getAnimationCache (uuid, animationName) {
-        let skeletonInfo = this._skeletonCache[uuid];
+        let skeletonInfo = this._spriterCache[uuid];
         if (!skeletonInfo) return null;
 
         let animationsCache = skeletonInfo.animationsCache;
@@ -477,7 +477,7 @@ let SkeletonCache = cc.Class({
     },
 
     updateAnimationCache (uuid, animationName) {
-        let skeletonInfo = this._skeletonCache[uuid];
+        let skeletonInfo = this._spriterCache[uuid];
         let skeleton = skeletonInfo && skeletonInfo.skeleton;
         if (!skeleton) return null;
 

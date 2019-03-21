@@ -1,4 +1,5 @@
 require("./SpriterAsset");
+let SpriterCache = require("./SpriterCache");
 let DefaultEntitysEnum = cc.Enum({
     'default': -1
 });
@@ -89,7 +90,7 @@ let SpriterNode = cc.Class({
             },
             visible: false
         },
-        _defaultEntityIndex: CC_EDITOR && {
+        _defaultEntityIndex: {
             get() {
                 if (this.sconAsset && this.defaultEntity) {
                     var skinsEnum = this.sconAsset.getEntitysEnum();
@@ -128,7 +129,7 @@ let SpriterNode = cc.Class({
         },
 
         // value of 0 represents no animation
-        _animationIndex: CC_EDITOR && {
+        _animationIndex: {
             get() {
                 var animationName = this.defaultAnimation;
                 if (this.sconAsset && animationName) {
@@ -143,10 +144,6 @@ let SpriterNode = cc.Class({
                 return 0;
             },
             set(value) {
-                if (value === 0) {
-                    this.defaultAnimation = '';
-                    return;
-                }
                 var animsEnum;
                 if (this.sconAsset) {
                     animsEnum = this.sconAsset.getAnimsEnum();
@@ -186,7 +183,7 @@ let SpriterNode = cc.Class({
      * @return {Boolean}
      */
     isFinish() {
-        return this._animationFinish || false;
+        return this._isAniComplete || false;
     },
     /**
      * !#en The time of animation.
@@ -208,10 +205,10 @@ let SpriterNode = cc.Class({
     setTime(time) {
         if (!this._sconFile) return;
         let pose = this._sconFile.getRuntimeData();
-        this._hideAllSprites();
-        this._animationFinish = true;
+        this._isAniComplete = true;
         pose.setTime(time);
         pose.strike();
+        this._hideAllSprites();
         this._updateSpriteFrames();
     },
     /**
@@ -222,7 +219,7 @@ let SpriterNode = cc.Class({
      */
     setLoop(value) {
         if (this.loop === value) return;
-        this._animationFinish = false;
+        this._isAniComplete = false;
 
         if (value) {
             this.loop = true;
@@ -238,6 +235,8 @@ let SpriterNode = cc.Class({
      * @param {String} entiry
      */
     setEntity(entiry) {
+        if (this.entiry == this.defaultEntity) return;
+        if (this._spriterCache) this._spriterCache.resetSpriter();
         this.defaultEntity = entiry;
     },
     /**
@@ -247,6 +246,7 @@ let SpriterNode = cc.Class({
      * @param {String} animation
      */
     setAnim(animation) {
+        if (this.defaultAnimation == animation) return;
         this.animation = animation;
     },
     /**
@@ -278,7 +278,7 @@ let SpriterNode = cc.Class({
         var animEnum;
         if (this.sconAsset) {
             animEnum = this.sconAsset.getAnimsEnum();
-            if (animEnum) this.defaultAnimation = animEnum[0];
+            if (animEnum && !this.defaultAnimation) this.defaultAnimation = animEnum[0];
         }
         // change enum
         setEnumAttr(this, '_animationIndex', animEnum || DefaultAnimsEnum);
@@ -298,72 +298,44 @@ let SpriterNode = cc.Class({
     _applyFile: function () {
         let file = this._sconFile;
         if (file) {
-            if (CC_EDITOR) this._refreshInspector();
+            if (CC_EDITOR) {
+                this._refreshInspector();
+                this.pose = this.sconAsset.getRuntimeData();
+            } else {
+                this._spriterCache = SpriterCache.sharedCache;
+                let Info = this._spriterCache.getSpriterCache(this.sconAsset._uuid, this.sconAsset);
+                this.pose = Info.pose;
+            }
             this._initSpriter(file);
 
         } else {
             this._relseasInfo();
         }
     },
-    _getObjectArraySprites() {
-        let spriteFrames = this.sconAsset.getFrames();
-        let pose = this.sconAsset.getRuntimeData();
-        var sps = pose.object_array.map((object) => {
-            if (object.type === 'sprite') {
-                const folder = pose.data.folder_array[object.folder_index];
-                const file = folder.file_array[object.file_index];
-                let imageKey = file.name;
-                const spriteFrame = spriteFrames[imageKey];
-                if (!spriteFrame) {
-                    cc.error(imageKey + " not find");
-                }
-                return {
-                    file,
-                    imageKey,
-                    folder,
-                    object,
-                    spriteFrame
-                };
-            } else if (object.type === "box") {
-                return {
-                    file: null,
-                    imageKey: null,
-                    folder: null,
-                    object: null,
-                    spriteFrame: null
-                };
-            }
-        });
-        return sps;
-    },
-    /**
-     * Update sprite
-     * @param sprite {cc.Sprite}
-     * @param worldSpace {Object}
-     * @param e {Object}
-     * @private
-     */
-    _updateSprite(sp, worldSpace, e) {
-        let sprite = sp.node;
-        sprite.opacity = e.object.alpha * 255;
-        sprite.x = worldSpace.position.x;
-        sprite.y = worldSpace.position.y;
-        sprite.scaleX = worldSpace.scale.x;
-        sprite.scaleY = worldSpace.scale.y;
-        sprite.rotation = -worldSpace.rotation.deg;
-        sp.myFile = e.file;
-        sp.myFolder = e.folder;
-        sp.myIndex = e.myIndex;
-    },
 
     _initSpriter(file) {
-        this._relseasInfo();
+        let name = this.animation;
         if (!this.defaultEntity || !this.defaultAnimation) return;
-        let pose = file.getRuntimeData();
-        pose.setEntity(this.defaultEntity);
-        pose.setAnim(this.animation || "");
-        pose.strike();
-        this._updateSpriteFrames();
+        if (this._spriterCache) {
+            let cache = this._spriterCache.getAnimationCache(this.sconAsset._uuid, name);
+            if (!cache) {
+                cache = this._spriterCache.updateAnimationCache(this.sconAsset._uuid, name);
+            }
+            if (cache) {
+                this._isAniComplete = false;
+                this._accTime = 0;
+                this._playCount = 0;
+                this._frameCache = cache;
+                this._curFrame = this._frameCache.frames[0];
+                this._updateSpriteFrames();
+            }
+        } else {
+            let pose = file.getRuntimeData();
+            pose.setEntity(this.defaultEntity);
+            pose.setAnim(this.animation || "");
+            this._updateRealtime(1 / this.timeStep);
+        }
+
     },
     _relseasInfo: function () {
         // remove the object added before
@@ -374,14 +346,38 @@ let SpriterNode = cc.Class({
         this.node.removeAllChildren();
         this.sprites = {};
     },
-    update() {
-        if (this._animationFinish) return;
+    update(dt) {
+        if (this._isAniComplete) return;
         if (!this._sconFile || CC_EDITOR) return;
+        if (this._frameCache) {
+            this._updateCache(dt);
+        } else {
+            this._updateRealtime(dt);
+        }
+
+    },
+    _updateCache(dt) {
+        let frames = this._frameCache.frames;
+        let totalTime = this._frameCache.totalTime;
+        let frameCount = frames.length;
+
+        this._accTime += dt * this.timeRate;
+        let frameIdx = Math.floor(this._accTime / totalTime * frameCount);
+        this._updateSpriteFrames();
+        if (frameIdx >= frameCount) {
+            this._accTime = 0;
+            frameIdx = 0;
+            if (!this.loop)
+                this._isAniComplete = true;
+        }
+        this._curFrame = frames[frameIdx];
+    },
+    _updateRealtime(dt) {
         let pose = this._sconFile.getRuntimeData();
         if (!pose) return;
-        pose.update(this.timeStep * this.timeRate);
+        pose.update(this.timeStep * this.timeRate * dt);
         pose.strike();
-        this._hideAllSprites();
+        this._curFrame = pose.object_array;
         this._updateSpriteFrames();
         if (!this.loop) {
             this._compareFinishAnimation();
@@ -396,61 +392,87 @@ let SpriterNode = cc.Class({
             this._currentAnimationTime = newTime;
         } else {
             this.setTime(this.getAnimLength() - 1);
-            this._animationFinish = true;
+            this._isAniComplete = true;
         }
     },
     _hideAllSprites() {
-        if (this.lastSprites && this.lastSprites.length > 0) {
-            let lastSprites = this.lastSprites;
-            for (let i in lastSprites) {
-                lastSprites[i].opacity = 0;
+        if (this._lastSprites) {
+            let _lastSprites = this._lastSprites;
+            for (let i in _lastSprites) {
+                _lastSprites[i].opacity = 0;
             }
             return;
         }
+        let find = 0;
+        for (find in this.sprites) {
+            find = 1;
+            break;
+        }
+        if (find) return;
         let children = this.node.children;
         for (let i in children) {
             children[i].opacity = 0;
         }
     },
-    _updateSpriteFrames() {
-        let objectArraySprites = this._getObjectArraySprites();
-        let sp;
-        let worldSpace;
-        let sprite;
-        this.lastSprites = [];
+    _updateSprite(index, object, spriteFrames, useSprites) {
+        let name = object.name;
+        let sprite = this.sprites[name];
+        let node;
+        if (!sprite) {
+            node = this.node.getChildByName(name);
+            if (!node) {
+                node = new cc.Node(name);
+                sprite = node.addComponent(cc.Sprite);
+                this.node.addChild(node);
+                sprite.name = object.imgKey;
+                this.sprites[name] = sprite;
+            } else {
+                sprite = node.getComponent(cc.Sprite);
+                this.sprites[name] = sprite;
+            }
+            let imageKey = object.imgKey;
+            const spriteFrame = spriteFrames[imageKey];
+            if (!spriteFrame) {
+                cc.error(imageKey + " not find");
+                return;
+            }
+            sprite.spriteFrame = spriteFrame;
+            var rect = spriteFrame.getRect();
+            node.width = rect.width;
+            node.height = rect.height;
 
-        for (let index = 0, len = objectArraySprites.length; index < len; index++) {
-            sp = objectArraySprites[index];
-            if (!sp.file) return;
-            sp.myIndex = index;
-            worldSpace = sp.object.world_space;
-            let name = sp.object.name;
-            sprite = this.sprites[name];
-            // If sprite not found - creating a new sprite
-            let node;
-            if (!sprite) {
-                node = this.node.getChildByName(name);
-                if (!node) {
-                    node = new cc.Node(name);
-                    sprite = node.addComponent(cc.Sprite);
-                    this.node.addChild(node);
-                    sprite.name = sp.imageKey;
-                    this.sprites[name] = sprite;
-                } else {
-                    sprite = node.getComponent(cc.Sprite);
-                    this.sprites[name] = sprite;
-                }
-                sprite.spriteFrame = sp.spriteFrame;
-                var rect = sp.spriteFrame.getRect();
-                node.width = rect.width;
-                node.height = rect.height;
-
-            } else
-                node = sprite.node;
-            this._updateSprite(sprite, worldSpace, sp);
-            node.zIndex = index;
-            this.lastSprites.push(node);
+        } else
+            node = sprite.node;
+        node.zIndex = index;
+        let worldSpace = object.world_space;
+        node.opacity = object.alpha * 255;
+        node.x = worldSpace.position.x;
+        node.y = worldSpace.position.y;
+        node.scaleX = worldSpace.scale.x;
+        node.scaleY = worldSpace.scale.y;
+        node.rotation = -worldSpace.rotation.deg;
+        if (this._lastSprites && this._lastSprites[name]) {
+            delete this._lastSprites[name];
         }
+        useSprites[name] = node;
+    },
+    _updateSpriteFrames() {
+        let objectArraySprites = this._curFrame || [];
+        let spriteFrames = this.sconAsset.getFrames();
+        let object;
+        let useSprites = {};
+        let _index = 0;
+        for (let index = 0, len = objectArraySprites.length; index < len; index++) {
+            object = objectArraySprites[index];
+            if (object.type === "sprite") {
+                this._updateSprite(_index, object, spriteFrames, useSprites);
+                _index++;
+            }
+
+        }
+        this._hideAllSprites();
+        this._lastSprites = useSprites;
+
     },
     is(a, b) {
         return a == b;

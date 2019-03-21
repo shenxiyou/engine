@@ -81,7 +81,7 @@ var SpriterAsset = cc.Class({
         if (this._spriteFrames) return this._spriteFrames;
         if (!(this.textures && this.textures.length > 0)) {
             cc.errorID(7507, this.name);
-            return null;
+            return {};
         }
         this._spriteFrames = {};
         let pose = this.getRuntimeData();
