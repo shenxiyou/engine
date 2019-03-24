@@ -135,6 +135,19 @@ var SpriterAsset = cc.Class({
 
         return this._spriterCache;
     },
+     /**
+     * !#en get default Entity.
+     * !#zh 获得动画默认Entity
+     * @method getDefaultEntity
+     * @return {String}
+     */
+    getDefaultEntity: function() {
+        let pose = this.getRuntimeData();
+        if(pose) {
+            return pose.getEntityKeys()[0]; 
+        }
+        return "";
+    },
     // EDITOR
 
     getEntitysEnum: CC_EDITOR && function () {

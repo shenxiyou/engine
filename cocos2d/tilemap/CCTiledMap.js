@@ -447,7 +447,12 @@ let TiledMap = cc.Class({
             for (let i = 0; i < texValues.length; ++i) {
                 textures[texKeys[i]] = texValues[i];
             }
-            
+            let spriteFrames = {};
+            let sp_values = file.spriteFrames;
+            let sp_keys = file.spriteNames;
+            for (let i = 0; i < sp_values.length; ++i) {
+                spriteFrames[sp_keys[i]] = sp_values[i];
+            }
             let tsxFileNames = file.tsxFileNames;
             let tsxFiles = file.tsxFiles;
             let tsxMap = {};
@@ -457,7 +462,7 @@ let TiledMap = cc.Class({
                 }
             }
 
-            let mapInfo = new cc.TMXMapInfo(file.tmxXmlStr, tsxMap, textures);
+            let mapInfo = new cc.TMXMapInfo(file.tmxXmlStr, tsxMap, textures, spriteFrames);
             let tilesets = mapInfo.getTilesets();
             if(!tilesets || tilesets.length === 0)
                 cc.logID(7241);

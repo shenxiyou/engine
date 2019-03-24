@@ -25,3 +25,4 @@
 
 require('./CCTiledMap');
 require('./tmx-layer-assembler');
+require('./tmx-object-assembler');

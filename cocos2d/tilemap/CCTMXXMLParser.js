@@ -190,6 +190,12 @@ cc.TMXTilesetInfo.prototype = {
         rect.y = parseInt(parseInt(gid / max_x, 10) * (this._tileSize.height + this.spacing) + this.margin, 10);
         return rect;
     },
+    /**
+     * Return SpriteFrame
+     * @method getImageByGid
+     * @param {Number} gid
+     * @return {cc.SpriteFrame}
+     */
     getImageByGid(gid) {
         gid = gid - parseInt(this.firstGid, 10);
         return this.images[gid];
@@ -282,7 +288,7 @@ function getPropertyList (node, map) {
  * @param {Object} tsxMap
  * @param {Object} textures
  */
-cc.TMXMapInfo = function (tmxFile, tsxMap, textures) {
+cc.TMXMapInfo = function (tmxFile, tsxMap, textures, spriteFrames) {
     this.properties = [];
     this.orientation = null;
     this.parentElement = null;
@@ -303,13 +309,13 @@ cc.TMXMapInfo = function (tmxFile, tsxMap, textures) {
 
     // map of textures indexed by name
     this._textures = null;
-
+    this._spriteFrames = null;
     // hex map values
     this._staggerAxis = null;
     this._staggerIndex = null;
     this._hexSideLength = 0;
 
-    this.initWithXML(tmxFile, tsxMap, textures);
+    this.initWithXML(tmxFile, tsxMap, textures, spriteFrames);
 };
 cc.TMXMapInfo.prototype = {
     constructor: cc.TMXMapInfo,
@@ -578,13 +584,13 @@ cc.TMXMapInfo.prototype = {
      * @param {Object} textures
      * @return {Boolean}
      */
-    initWithXML (tmxString, tsxMap, textures) {
+    initWithXML (tmxString, tsxMap, textures, spriteFrames) {
         this._tilesets.length = 0;
         this._layers.length = 0;
 
         this._tsxMap = tsxMap;
         this._textures = textures;
-
+        this._spriteFrames = spriteFrames;
         this._objectGroups.length = 0;
         this._allChildren.length = 0;
         this.properties.length = 0;
@@ -701,9 +707,11 @@ cc.TMXMapInfo.prototype = {
                 let image = images[0];
                 let imagename = image.getAttribute('source');
                 imagename.replace(/\\/g, '\/');
-                tileset.sourceImage = this._textures[imagename];
-                if (!tileset.sourceImage) {
-                    cc.errorID(7221, imagename);
+                if(this._textures[imagename]) {
+                    tileset.sourceImage = this._textures[imagename];
+                    if (!tileset.sourceImage) {
+                        cc.errorID(7221, imagename);
+                    }
                 }
 
                 this.setTilesets(tileset);
@@ -728,7 +736,7 @@ cc.TMXMapInfo.prototype = {
                                 let img = images[i];
                                 let n = img.getAttribute('source');
                                 n.replace(/\\/g, '\/');
-                                let sourceImage = this._textures[n];
+                                let sourceImage = this._spriteFrames[n];
                                 tileset.images[t.getAttribute("id")] = sourceImage;
                             }
                         }

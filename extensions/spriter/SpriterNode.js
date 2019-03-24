@@ -49,8 +49,13 @@ let SpriterNode = cc.Class({
             set(value, force) {
                 if (this._sconFile !== value || (CC_EDITOR && force)) {
                     this._sconFile = value;
-                    this.defaultAnimation = "";
-                    this.defaultEntity = "";
+                    if(CC_EDITOR) {
+                        this.defaultAnimation = "";
+                    }
+                    this.defaultEntity = this._sconFile.getDefaultEntity();
+                    this.sprites = {};
+                    this._lastSprites = {};
+                    this.node.removeAllChildren();
                     this._applyFile();
                 }
             },
@@ -209,6 +214,7 @@ let SpriterNode = cc.Class({
         pose.setTime(time);
         pose.strike();
         this._hideAllSprites();
+        this._curFrame = pose.object_array;
         this._updateSpriteFrames();
     },
     /**
@@ -298,6 +304,7 @@ let SpriterNode = cc.Class({
     _applyFile: function () {
         let file = this._sconFile;
         if (file) {
+            this._isAniComplete = true;
             if (CC_EDITOR) {
                 this._refreshInspector();
                 this.pose = this.sconAsset.getRuntimeData();
@@ -324,7 +331,6 @@ let SpriterNode = cc.Class({
             if (cache) {
                 this._isAniComplete = false;
                 this._accTime = 0;
-                this._playCount = 0;
                 this._frameCache = cache;
                 this._curFrame = this._frameCache.frames[0];
                 this._updateSpriteFrames();
@@ -333,7 +339,8 @@ let SpriterNode = cc.Class({
             let pose = file.getRuntimeData();
             pose.setEntity(this.defaultEntity);
             pose.setAnim(this.animation || "");
-            this._updateRealtime(1 / this.timeStep);
+            this.setTime(0);
+            this._isAniComplete = false;
         }
 
     },
@@ -451,9 +458,7 @@ let SpriterNode = cc.Class({
         node.scaleX = worldSpace.scale.x;
         node.scaleY = worldSpace.scale.y;
         node.rotation = -worldSpace.rotation.deg;
-        if (this._lastSprites && this._lastSprites[name]) {
-            delete this._lastSprites[name];
-        }
+        
         useSprites[name] = node;
     },
     _updateSpriteFrames() {
@@ -462,6 +467,7 @@ let SpriterNode = cc.Class({
         let object;
         let useSprites = {};
         let _index = 0;
+        this._hideAllSprites();
         for (let index = 0, len = objectArraySprites.length; index < len; index++) {
             object = objectArraySprites[index];
             if (object.type === "sprite") {
@@ -470,7 +476,6 @@ let SpriterNode = cc.Class({
             }
 
         }
-        this._hideAllSprites();
         this._lastSprites = useSprites;
 
     },

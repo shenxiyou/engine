@@ -43,16 +43,25 @@ function searchDependFiles(tmxFile, tmxFileData, cb) {
   var textures = [];
   var tsxFiles = [];
   var textureNames = [];
+  var spriteNames = [];
+  var spriteFrames = [];
   function parseTilesetImages(tilesetNode, sourcePath) {
     var images = tilesetNode.getElementsByTagName('image');
     for (var i = 0, n = images.length; i < n ; i++) {
-      var imageCfg = images[i].getAttribute('source');
+      let img = images[i];      
+      var imageCfg = img.getAttribute('source');
       if (imageCfg) {
         var imgPath = Path.join(Path.dirname(sourcePath), imageCfg);
-        textures.push(imgPath);
         let textureName = Path.relative(Path.dirname(sourcePath), imgPath);
-        textureName = textureName.replace(/\\/g, '\/');
-        textureNames.push(textureName);
+          textureName = textureName.replace(/\\/g, '\/');
+        if(img.parentNode && img.parentNode.localName == "tile") {
+          imgPath = Path.join(imgPath,Path.basenameNoExt(imageCfg));
+          spriteFrames.push(imgPath);
+          spriteNames.push(textureName);
+        } else {
+          textures.push(imgPath);
+          textureNames.push(textureName);
+        }
       }
     }
   }
@@ -81,7 +90,7 @@ function searchDependFiles(tmxFile, tmxFileData, cb) {
     parseTilesetImages(tileset, tmxFile);
   }
 
-  cb(null, { textures, tsxFiles, textureNames });
+  cb(null, { textures, tsxFiles, textureNames, spriteNames, spriteFrames });
 }
 
 const AssetRootUrl = 'db://assets/';
@@ -93,6 +102,8 @@ class TiledMapMeta extends CustomAssetMeta {
     this._textures = [];
     this._tsxFiles = [];
     this._textureNames = [];
+    this._spriteFrames = [];
+    this._spriteNames = [];
   }
 
   static version () { return '2.0.1'; }
@@ -113,7 +124,8 @@ class TiledMapMeta extends CustomAssetMeta {
         this._textures = info.textures;
         this._tsxFiles = info.tsxFiles;
         this._textureNames = info.textureNames;
-
+        this._spriteFrames = info.spriteFrames;
+        this._spriteNames = info.spriteNames;
         cb();
       });
     });
@@ -128,6 +140,11 @@ class TiledMapMeta extends CustomAssetMeta {
       var uuid = db.fspathToUuid(p);
       return uuid ? Editor.serialize.asAsset(uuid) : null;
     });
+    asset.spriteFrames = this._spriteFrames.map(p => {
+      var uuid = db.fspathToUuid(p);
+      return uuid ? Editor.serialize.asAsset(uuid) : null;
+    });
+    asset.spriteNames = this._spriteNames;
     asset.textureNames = this._textureNames;
     asset.tsxFiles = this._tsxFiles.map(p => {
         var tsxPath = Path.join(Path.dirname(fspath), p);

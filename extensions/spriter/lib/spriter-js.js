@@ -1,85 +1,121 @@
-Object.defineProperty(exports, "__esModule", { value: true });
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 /**
  * A TypeScript API for the Spriter SCML animation data format.
  */
 var extendStatics = Object.setPrototypeOf ||
-                    ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-                    function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    ({
+            __proto__: []
+        }
+        instanceof Array && function (d, b) {
+            d.__proto__ = b;
+        }) ||
+    function (d, b) {
+        for (var p in b)
+            if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
 var __extends = function (d, b) {
     extendStatics(d, b);
-    function __() { this.constructor = d; }
+
+    function __() {
+        this.constructor = d;
+    }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 
 var PI = 3.14159;
+
 function loadBool(json, key, def) {
     var value = json[key];
     switch (typeof (value)) {
-        case "string": return (value === "true") ? true : false;
-        case "boolean": return value;
-        default: return def || false;
+        case "string":
+            return (value === "true") ? true : false;
+        case "boolean":
+            return value;
+        default:
+            return def || false;
     }
 }
 exports.loadBool = loadBool;
+
 function saveBool(json, key, value, def) {
     if ((typeof (def) !== "boolean") || (value !== def)) {
         json[key] = value;
     }
 }
 exports.saveBool = saveBool;
+
 function FixNumber(num) {
     return Math.floor(num * 1000) / 1000;
 }
+
 function cos(num) {
     return FixNumber(Math.cos(num));
 }
+
 function sin(num) {
     return FixNumber(Math.sin(num));
 }
+
 function loadFloat(json, key, def) {
     var value = json[key];
     switch (typeof (value)) {
-        case "string": return FixNumber(parseFloat(value));
-        case "number": return FixNumber(value);
-        default: return def || 0;
+        case "string":
+            return FixNumber(parseFloat(value));
+        case "number":
+            return FixNumber(value);
+        default:
+            return def || 0;
     }
 }
 exports.loadFloat = loadFloat;
+
 function saveFloat(json, key, value, def) {
     if ((typeof (def) !== "number") || (value !== def)) {
         json[key] = value;
     }
 }
 exports.saveFloat = saveFloat;
+
 function loadInt(json, key, def) {
     var value = json[key];
     switch (typeof (value)) {
-        case "string": return parseInt(value, 10);
-        case "number": return 0 | value;
-        default: return def || 0;
+        case "string":
+            return parseInt(value, 10);
+        case "number":
+            return 0 | value;
+        default:
+            return def || 0;
     }
 }
 exports.loadInt = loadInt;
+
 function saveInt(json, key, value, def) {
     if ((typeof (def) !== "number") || (value !== def)) {
         json[key] = value;
     }
 }
 exports.saveInt = saveInt;
+
 function loadString(json, key, def) {
     var value = json[key];
     switch (typeof (value)) {
-        case "string": return value;
-        default: return def || "";
+        case "string":
+            return value;
+        default:
+            return def || "";
     }
 }
 exports.loadString = loadString;
+
 function saveString(json, key, value, def) {
     if ((typeof (def) !== "string") || (value !== def)) {
         json[key] = value;
     }
 }
 exports.saveString = saveString;
+
 function makeArray(value) {
     if ((typeof (value) === 'object') && (typeof (value.length) === 'number')) { // (Object.isArray(value))
         return value;
@@ -89,51 +125,59 @@ function makeArray(value) {
     }
     return [];
 }
+
 function wrap(num, min, max) {
     if (min < max) {
         if (num < min) {
             return max - ((min - num) % (max - min));
-        }
-        else {
+        } else {
             return min + ((num - min) % (max - min));
         }
-    }
-    else if (min === max) {
+    } else if (min === max) {
         return min;
-    }
-    else {
+    } else {
         return num;
     }
 }
 exports.wrap = wrap;
+
 function interpolateLinear(a, b, t) {
     return a + ((b - a) * t);
 }
+
 function interpolateQuadratic(a, b, c, t) {
     return interpolateLinear(interpolateLinear(a, b, t), interpolateLinear(b, c, t), t);
 }
+
 function interpolateCubic(a, b, c, d, t) {
     return interpolateLinear(interpolateQuadratic(a, b, c, t), interpolateQuadratic(b, c, d, t), t);
 }
+
 function interpolateQuartic(a, b, c, d, e, t) {
     return interpolateLinear(interpolateCubic(a, b, c, d, t), interpolateCubic(b, c, d, e, t), t);
 }
+
 function interpolateQuintic(a, b, c, d, e, f, t) {
     return interpolateLinear(interpolateQuartic(a, b, c, d, e, t), interpolateQuartic(b, c, d, e, f, t), t);
 }
+
 function interpolateBezier(x1, y1, x2, y2, t) {
     function SampleCurve(a, b, c, t) {
         return ((a * t + b) * t + c) * t;
     }
+
     function SampleCurveDerivativeX(ax, bx, cx, t) {
         return (3.0 * ax * t + 2.0 * bx) * t + cx;
     }
+
     function SolveEpsilon(duration) {
         return 1.0 / (200.0 * duration);
     }
+
     function Solve(ax, bx, cx, ay, by, cy, x, epsilon) {
         return SampleCurve(ay, by, cy, SolveCurveX(ax, bx, cx, x, epsilon));
     }
+
     function SolveCurveX(ax, bx, cx, x, epsilon) {
         var t0;
         var t1;
@@ -180,29 +224,29 @@ function interpolateBezier(x1, y1, x2, y2, t) {
     var ay = 1.0 - cy - by;
     return Solve(ax, bx, cx, ay, by, cy, t, SolveEpsilon(duration));
 }
+
 function tween(a, b, t) {
     return a + ((b - a) * t);
 }
 exports.tween = tween;
+
 function wrapAngleRadians(angle) {
     if (angle <= 0.0) {
         return ((angle - PI) % (2.0 * PI)) + PI;
-    }
-    else {
+    } else {
         return ((angle + PI) % (2.0 * PI)) - PI;
     }
 }
 exports.wrapAngleRadians = wrapAngleRadians;
+
 function tweenAngleRadians(a, b, t, spin) {
     if (spin === 0) {
         return a;
-    }
-    else if (spin > 0) {
+    } else if (spin > 0) {
         if ((b - a) < 0.0) {
             b += 2.0 * PI;
         }
-    }
-    else if (spin < 0) {
+    } else if (spin < 0) {
         if ((b - a) > 0.0) {
             b -= 2.0 * PI;
         }
@@ -212,45 +256,71 @@ function tweenAngleRadians(a, b, t, spin) {
 exports.tweenAngleRadians = tweenAngleRadians;
 var Angle = /** @class */ (function () {
     function Angle(rad) {
-        if (rad === void 0) { rad = 0; }
+        if (rad === void 0) {
+            rad = 0;
+        }
         this.rad = 0;
         this.rad = rad;
     }
     Object.defineProperty(Angle.prototype, "deg", {
-        get: function () { return FixNumber(this.rad * 180 / PI); },
-        set: function (value) { this.rad = FixNumber(value * PI / 180); },
+        get: function () {
+            return FixNumber(this.rad * 180 / PI);
+        },
+        set: function (value) {
+            this.rad = FixNumber(value * PI / 180);
+        },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(Angle.prototype, "cos", {
-        get: function () { return cos(this.rad); },
+        get: function () {
+            return cos(this.rad);
+        },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(Angle.prototype, "sin", {
-        get: function () { return sin(this.rad); },
+        get: function () {
+            return sin(this.rad);
+        },
         enumerable: true,
         configurable: true
     });
-    Angle.prototype.selfIdentity = function () { this.rad = 0; return this; };
-    Angle.prototype.copy = function (other) { this.rad = other.rad; return this; };
+    Angle.prototype.selfIdentity = function () {
+        this.rad = 0;
+        return this;
+    };
+    Angle.prototype.copy = function (other) {
+        this.rad = other.rad;
+        return this;
+    };
     Angle.add = function (a, b, out) {
-        if (out === void 0) { out = new Angle(); }
+        if (out === void 0) {
+            out = new Angle();
+        }
         out.rad = wrapAngleRadians(a.rad + b.rad);
         return out;
     };
     Angle.prototype.add = function (other, out) {
-        if (out === void 0) { out = new Angle(); }
+        if (out === void 0) {
+            out = new Angle();
+        }
         return Angle.add(this, other, out);
     };
-    Angle.prototype.selfAdd = function (other) { return Angle.add(this, other, this); };
+    Angle.prototype.selfAdd = function (other) {
+        return Angle.add(this, other, this);
+    };
     Angle.tween = function (a, b, pct, spin, out) {
-        if (out === void 0) { out = new Angle(); }
+        if (out === void 0) {
+            out = new Angle();
+        }
         out.rad = tweenAngleRadians(a.rad, b.rad, pct, spin);
         return out;
     };
     Angle.prototype.tween = function (other, pct, spin, out) {
-        if (out === void 0) { out = new Angle(); }
+        if (out === void 0) {
+            out = new Angle();
+        }
         return Angle.tween(this, other, pct, spin, out);
     };
     Angle.prototype.selfTween = function (other, pct, spin) {
@@ -261,8 +331,12 @@ var Angle = /** @class */ (function () {
 exports.Angle = Angle;
 var Vector = /** @class */ (function () {
     function Vector(x, y) {
-        if (x === void 0) { x = 0.0; }
-        if (y === void 0) { y = 0.0; }
+        if (x === void 0) {
+            x = 0.0;
+        }
+        if (y === void 0) {
+            y = 0.0;
+        }
         this.x = 0.0;
         this.y = 0.0;
         this.x = x;
@@ -274,7 +348,9 @@ var Vector = /** @class */ (function () {
         return this;
     };
     Vector.equal = function (a, b, epsilon) {
-        if (epsilon === void 0) { epsilon = 1e-6; }
+        if (epsilon === void 0) {
+            epsilon = 1e-6;
+        }
         if (Math.abs(a.x - b.x) > epsilon) {
             return false;
         }
@@ -284,13 +360,17 @@ var Vector = /** @class */ (function () {
         return true;
     };
     Vector.add = function (a, b, out) {
-        if (out === void 0) { out = new Vector(); }
+        if (out === void 0) {
+            out = new Vector();
+        }
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         return out;
     };
     Vector.prototype.add = function (other, out) {
-        if (out === void 0) { out = new Vector(); }
+        if (out === void 0) {
+            out = new Vector();
+        }
         return Vector.add(this, other, out);
     };
     Vector.prototype.selfAdd = function (other) {
@@ -300,13 +380,17 @@ var Vector = /** @class */ (function () {
         return this;
     };
     Vector.tween = function (a, b, pct, out) {
-        if (out === void 0) { out = new Vector(); }
+        if (out === void 0) {
+            out = new Vector();
+        }
         out.x = tween(a.x, b.x, pct);
         out.y = tween(a.y, b.y, pct);
         return out;
     };
     Vector.prototype.tween = function (other, pct, out) {
-        if (out === void 0) { out = new Vector(); }
+        if (out === void 0) {
+            out = new Vector();
+        }
         return Vector.tween(this, other, pct, out);
     };
     Vector.prototype.selfTween = function (other, pct) {
@@ -317,6 +401,7 @@ var Vector = /** @class */ (function () {
 exports.Vector = Vector;
 var Position = /** @class */ (function (_super) {
     __extends(Position, _super);
+
     function Position() {
         return _super.call(this, 0.0, 0.0) || this;
     }
@@ -325,6 +410,7 @@ var Position = /** @class */ (function (_super) {
 exports.Position = Position;
 var Rotation = /** @class */ (function (_super) {
     __extends(Rotation, _super);
+
     function Rotation() {
         return _super.call(this, 0.0) || this;
     }
@@ -333,6 +419,7 @@ var Rotation = /** @class */ (function (_super) {
 exports.Rotation = Rotation;
 var Scale = /** @class */ (function (_super) {
     __extends(Scale, _super);
+
     function Scale() {
         return _super.call(this, 1.0, 1.0) || this;
     }
@@ -346,6 +433,7 @@ var Scale = /** @class */ (function (_super) {
 exports.Scale = Scale;
 var Pivot = /** @class */ (function (_super) {
     __extends(Pivot, _super);
+
     function Pivot() {
         return _super.call(this, 0.0, 1.0) || this;
     }
@@ -383,7 +471,9 @@ var Space = /** @class */ (function () {
         return space;
     };
     Space.equal = function (a, b, epsilon) {
-        if (epsilon === void 0) { epsilon = 1e-6; }
+        if (epsilon === void 0) {
+            epsilon = 1e-6;
+        }
         if (Math.abs(a.position.x - b.position.x) > epsilon) {
             return false;
         }
@@ -402,7 +492,9 @@ var Space = /** @class */ (function () {
         return true;
     };
     Space.identity = function (out) {
-        if (out === void 0) { out = new Space(); }
+        if (out === void 0) {
+            out = new Space();
+        }
         out.position.x = 0.0;
         out.position.y = 0.0;
         out.rotation.rad = 0.0;
@@ -473,8 +565,7 @@ var Space = /** @class */ (function () {
         out.position.y = ty + a.position.y;
         if ((a.scale.x * a.scale.y) < 0.0) {
             out.rotation.rad = wrapAngleRadians(a.rotation.rad - b.rotation.rad);
-        }
-        else {
+        } else {
             out.rotation.rad = wrapAngleRadians(b.rotation.rad + a.rotation.rad);
         }
         out.scale.x = b.scale.x * a.scale.x;
@@ -491,8 +582,7 @@ var Space = /** @class */ (function () {
         out.scale.y = ab.scale.y / a.scale.y;
         if ((a.scale.x * a.scale.y) < 0.0) {
             out.rotation.rad = wrapAngleRadians(a.rotation.rad + ab.rotation.rad);
-        }
-        else {
+        } else {
             out.rotation.rad = wrapAngleRadians(ab.rotation.rad - a.rotation.rad);
         }
         var x = ab.position.x - a.position.x;
@@ -558,6 +648,7 @@ var Element = /** @class */ (function () {
 exports.Element = Element;
 var File = /** @class */ (function (_super) {
     __extends(File, _super);
+
     function File(type) {
         var _this = _super.call(this) || this;
         _this.type = "unknown";
@@ -576,6 +667,7 @@ var File = /** @class */ (function (_super) {
 exports.File = File;
 var ImageFile = /** @class */ (function (_super) {
     __extends(ImageFile, _super);
+
     function ImageFile() {
         var _this = _super.call(this, 'image') || this;
         _this.width = 0;
@@ -596,6 +688,7 @@ var ImageFile = /** @class */ (function (_super) {
 exports.ImageFile = ImageFile;
 var SoundFile = /** @class */ (function (_super) {
     __extends(SoundFile, _super);
+
     function SoundFile() {
         return _super.call(this, 'sound') || this;
     }
@@ -608,6 +701,7 @@ var SoundFile = /** @class */ (function (_super) {
 exports.SoundFile = SoundFile;
 var Folder = /** @class */ (function (_super) {
     __extends(Folder, _super);
+
     function Folder() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.file_array = [];
@@ -652,6 +746,7 @@ var BaseObject = /** @class */ (function () {
 exports.BaseObject = BaseObject;
 var SpriteObject = /** @class */ (function (_super) {
     __extends(SpriteObject, _super);
+
     function SpriteObject() {
         var _this = _super.call(this, 'sprite') || this;
         _this.parent_index = -1;
@@ -667,28 +762,27 @@ var SpriteObject = /** @class */ (function (_super) {
         return _this;
     }
     SpriteObject.prototype.clone = function (other) {
-        this.copy(other);
-        this.name = other.name;
-        this.imgKey = other.imgKey;
-    },
-    SpriteObject.prototype.load = function (json) {
-        _super.prototype.load.call(this, json);
-        this.parent_index = loadInt(json, 'parent', -1);
-        this.folder_index = loadInt(json, 'folder', -1);
-        this.file_index = loadInt(json, 'file', -1);
-        this.local_space.load(json);
-        this.world_space.copy(this.local_space);
-        if ((typeof (json['pivot_x']) !== 'undefined') || (typeof (json['pivot_y']) !== 'undefined')) {
-            this.pivot.x = loadFloat(json, 'pivot_x', 0.0);
-            this.pivot.y = loadFloat(json, 'pivot_y', 1.0);
-        }
-        else {
-            this.default_pivot = true;
-        }
-        this.z_index = loadInt(json, 'z_index', 0);
-        this.alpha = loadFloat(json, 'a', 1.0);
-        return this;
-    };
+            this.copy(other);
+            this.name = other.name;
+            this.imgKey = other.imgKey;
+        },
+        SpriteObject.prototype.load = function (json) {
+            _super.prototype.load.call(this, json);
+            this.parent_index = loadInt(json, 'parent', -1);
+            this.folder_index = loadInt(json, 'folder', -1);
+            this.file_index = loadInt(json, 'file', -1);
+            this.local_space.load(json);
+            this.world_space.copy(this.local_space);
+            if ((typeof (json['pivot_x']) !== 'undefined') || (typeof (json['pivot_y']) !== 'undefined')) {
+                this.pivot.x = loadFloat(json, 'pivot_x', 0.0);
+                this.pivot.y = loadFloat(json, 'pivot_y', 1.0);
+            } else {
+                this.default_pivot = true;
+            }
+            this.z_index = loadInt(json, 'z_index', 0);
+            this.alpha = loadFloat(json, 'a', 1.0);
+            return this;
+        };
     SpriteObject.prototype.copy = function (other) {
         this.parent_index = other.parent_index;
         this.folder_index = other.folder_index;
@@ -713,6 +807,7 @@ var SpriteObject = /** @class */ (function (_super) {
 exports.SpriteObject = SpriteObject;
 var Bone = /** @class */ (function (_super) {
     __extends(Bone, _super);
+
     function Bone() {
         var _this = _super.call(this, 'bone') || this;
         _this.parent_index = -1;
@@ -741,6 +836,7 @@ var Bone = /** @class */ (function (_super) {
 exports.Bone = Bone;
 var BoxObject = /** @class */ (function (_super) {
     __extends(BoxObject, _super);
+
     function BoxObject() {
         var _this = _super.call(this, 'box') || this;
         _this.parent_index = -1;
@@ -774,6 +870,7 @@ var BoxObject = /** @class */ (function (_super) {
 exports.BoxObject = BoxObject;
 var PointObject = /** @class */ (function (_super) {
     __extends(PointObject, _super);
+
     function PointObject() {
         var _this = _super.call(this, 'point') || this;
         _this.parent_index = -1;
@@ -802,6 +899,7 @@ var PointObject = /** @class */ (function (_super) {
 exports.PointObject = PointObject;
 var SoundObject = /** @class */ (function (_super) {
     __extends(SoundObject, _super);
+
     function SoundObject() {
         var _this = _super.call(this, 'sound') || this;
         _this.folder_index = -1;
@@ -837,6 +935,7 @@ var SoundObject = /** @class */ (function (_super) {
 exports.SoundObject = SoundObject;
 var EntityObject = /** @class */ (function (_super) {
     __extends(EntityObject, _super);
+
     function EntityObject() {
         var _this = _super.call(this, 'entity') || this;
         _this.parent_index = -1;
@@ -875,6 +974,7 @@ var EntityObject = /** @class */ (function (_super) {
 exports.EntityObject = EntityObject;
 var VariableObject = /** @class */ (function (_super) {
     __extends(VariableObject, _super);
+
     function VariableObject() {
         return _super.call(this, 'variable') || this;
     }
@@ -885,13 +985,13 @@ var VariableObject = /** @class */ (function (_super) {
     VariableObject.prototype.copy = function (other) {
         return this;
     };
-    VariableObject.prototype.tween = function (other, pct, spin) {
-    };
+    VariableObject.prototype.tween = function (other, pct, spin) {};
     return VariableObject;
 }(BaseObject));
 exports.VariableObject = VariableObject;
 var Ref = /** @class */ (function (_super) {
     __extends(Ref, _super);
+
     function Ref() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.parent_index = -1;
@@ -911,6 +1011,7 @@ var Ref = /** @class */ (function (_super) {
 exports.Ref = Ref;
 var BoneRef = /** @class */ (function (_super) {
     __extends(BoneRef, _super);
+
     function BoneRef() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -919,6 +1020,7 @@ var BoneRef = /** @class */ (function (_super) {
 exports.BoneRef = BoneRef;
 var ObjectRef = /** @class */ (function (_super) {
     __extends(ObjectRef, _super);
+
     function ObjectRef() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.z_index = 0;
@@ -934,6 +1036,7 @@ var ObjectRef = /** @class */ (function (_super) {
 exports.ObjectRef = ObjectRef;
 var Keyframe = /** @class */ (function (_super) {
     __extends(Keyframe, _super);
+
     function Keyframe() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.time = 0;
@@ -964,8 +1067,7 @@ var Keyframe = /** @class */ (function (_super) {
         while (true) {
             if (array[current + 1].time <= time) {
                 lo = current + 1;
-            }
-            else {
+            } else {
                 hi = current;
             }
             if (lo === hi) {
@@ -998,13 +1100,20 @@ var Curve = /** @class */ (function () {
     };
     Curve.prototype.evaluate = function (t) {
         switch (this.type) {
-            case "instant": return 0.0;
-            case "linear": return t;
-            case "quadratic": return interpolateQuadratic(0.0, this.c1, 1.0, t);
-            case "cubic": return interpolateCubic(0.0, this.c1, this.c2, 1.0, t);
-            case "quartic": return interpolateQuartic(0.0, this.c1, this.c2, this.c3, 1.0, t);
-            case "quintic": return interpolateQuintic(0.0, this.c1, this.c2, this.c3, this.c4, 1.0, t);
-            case "bezier": return interpolateBezier(this.c1, this.c2, this.c3, this.c4, t);
+            case "instant":
+                return 0.0;
+            case "linear":
+                return t;
+            case "quadratic":
+                return interpolateQuadratic(0.0, this.c1, 1.0, t);
+            case "cubic":
+                return interpolateCubic(0.0, this.c1, this.c2, 1.0, t);
+            case "quartic":
+                return interpolateQuartic(0.0, this.c1, this.c2, this.c3, 1.0, t);
+            case "quintic":
+                return interpolateQuintic(0.0, this.c1, this.c2, this.c3, this.c4, 1.0, t);
+            case "bezier":
+                return interpolateBezier(this.c1, this.c2, this.c3, this.c4, t);
         }
         return 0.0;
     };
@@ -1013,6 +1122,7 @@ var Curve = /** @class */ (function () {
 exports.Curve = Curve;
 var MainlineKeyframe = /** @class */ (function (_super) {
     __extends(MainlineKeyframe, _super);
+
     function MainlineKeyframe() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.curve = new Curve();
@@ -1027,21 +1137,24 @@ var MainlineKeyframe = /** @class */ (function (_super) {
         json.bone_ref.forEach(function (bone_ref_json) {
             mainline_keyframe.bone_ref_array.push(new BoneRef().load(bone_ref_json));
         });
-        mainline_keyframe.bone_ref_array.sort(function (a, b) { return a.id - b.id; });
+        mainline_keyframe.bone_ref_array.sort(function (a, b) {
+            return a.id - b.id;
+        });
         mainline_keyframe.object_ref_array = [];
         json.object_ref = makeArray(json.object_ref);
         json.object_ref.forEach(function (object_ref_json) {
             mainline_keyframe.object_ref_array.push(new ObjectRef().load(object_ref_json));
         });
-        mainline_keyframe.object_ref_array.sort(function (a, b) { return a.id - b.id; });
+        mainline_keyframe.object_ref_array.sort(function (a, b) {
+            return a.id - b.id;
+        });
         return mainline_keyframe;
     };
     return MainlineKeyframe;
 }(Keyframe));
 exports.MainlineKeyframe = MainlineKeyframe;
 var Mainline = /** @class */ (function () {
-    function Mainline() {
-    }
+    function Mainline() {}
     Mainline.prototype.load = function (json) {
         var mainline = this;
         mainline.keyframe_array = [];
@@ -1057,6 +1170,7 @@ var Mainline = /** @class */ (function () {
 exports.Mainline = Mainline;
 var TimelineKeyframe = /** @class */ (function (_super) {
     __extends(TimelineKeyframe, _super);
+
     function TimelineKeyframe(type) {
         var _this = _super.call(this) || this;
         _this.type = "unknown";
@@ -1078,6 +1192,7 @@ var TimelineKeyframe = /** @class */ (function (_super) {
 exports.TimelineKeyframe = TimelineKeyframe;
 var SpriteTimelineKeyframe = /** @class */ (function (_super) {
     __extends(SpriteTimelineKeyframe, _super);
+
     function SpriteTimelineKeyframe() {
         return _super.call(this, 'sprite') || this;
     }
@@ -1091,6 +1206,7 @@ var SpriteTimelineKeyframe = /** @class */ (function (_super) {
 exports.SpriteTimelineKeyframe = SpriteTimelineKeyframe;
 var BoneTimelineKeyframe = /** @class */ (function (_super) {
     __extends(BoneTimelineKeyframe, _super);
+
     function BoneTimelineKeyframe() {
         return _super.call(this, 'bone') || this;
     }
@@ -1105,6 +1221,7 @@ var BoneTimelineKeyframe = /** @class */ (function (_super) {
 exports.BoneTimelineKeyframe = BoneTimelineKeyframe;
 var BoxTimelineKeyframe = /** @class */ (function (_super) {
     __extends(BoxTimelineKeyframe, _super);
+
     function BoxTimelineKeyframe() {
         return _super.call(this, 'box') || this;
     }
@@ -1119,6 +1236,7 @@ var BoxTimelineKeyframe = /** @class */ (function (_super) {
 exports.BoxTimelineKeyframe = BoxTimelineKeyframe;
 var PointTimelineKeyframe = /** @class */ (function (_super) {
     __extends(PointTimelineKeyframe, _super);
+
     function PointTimelineKeyframe() {
         return _super.call(this, 'point') || this;
     }
@@ -1133,6 +1251,7 @@ var PointTimelineKeyframe = /** @class */ (function (_super) {
 exports.PointTimelineKeyframe = PointTimelineKeyframe;
 var SoundTimelineKeyframe = /** @class */ (function (_super) {
     __extends(SoundTimelineKeyframe, _super);
+
     function SoundTimelineKeyframe() {
         return _super.call(this, 'sound') || this;
     }
@@ -1147,6 +1266,7 @@ var SoundTimelineKeyframe = /** @class */ (function (_super) {
 exports.SoundTimelineKeyframe = SoundTimelineKeyframe;
 var EntityTimelineKeyframe = /** @class */ (function (_super) {
     __extends(EntityTimelineKeyframe, _super);
+
     function EntityTimelineKeyframe() {
         return _super.call(this, 'entity') || this;
     }
@@ -1161,6 +1281,7 @@ var EntityTimelineKeyframe = /** @class */ (function (_super) {
 exports.EntityTimelineKeyframe = EntityTimelineKeyframe;
 var VariableTimelineKeyframe = /** @class */ (function (_super) {
     __extends(VariableTimelineKeyframe, _super);
+
     function VariableTimelineKeyframe() {
         return _super.call(this, 'variable') || this;
     }
@@ -1175,6 +1296,7 @@ var VariableTimelineKeyframe = /** @class */ (function (_super) {
 exports.VariableTimelineKeyframe = VariableTimelineKeyframe;
 var TagDef = /** @class */ (function (_super) {
     __extends(TagDef, _super);
+
     function TagDef() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.tag_index = -1;
@@ -1189,6 +1311,7 @@ var TagDef = /** @class */ (function (_super) {
 exports.TagDef = TagDef;
 var Tag = /** @class */ (function (_super) {
     __extends(Tag, _super);
+
     function Tag() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.tag_def_index = -1;
@@ -1204,6 +1327,7 @@ var Tag = /** @class */ (function (_super) {
 exports.Tag = Tag;
 var TaglineKeyframe = /** @class */ (function (_super) {
     __extends(TaglineKeyframe, _super);
+
     function TaglineKeyframe() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -1222,6 +1346,7 @@ var TaglineKeyframe = /** @class */ (function (_super) {
 exports.TaglineKeyframe = TaglineKeyframe;
 var Tagline = /** @class */ (function (_super) {
     __extends(Tagline, _super);
+
     function Tagline() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.keyframe_array = [];
@@ -1242,6 +1367,7 @@ var Tagline = /** @class */ (function (_super) {
 exports.Tagline = Tagline;
 var VarlineKeyframe = /** @class */ (function (_super) {
     __extends(VarlineKeyframe, _super);
+
     function VarlineKeyframe() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -1263,6 +1389,7 @@ var VarlineKeyframe = /** @class */ (function (_super) {
 exports.VarlineKeyframe = VarlineKeyframe;
 var Varline = /** @class */ (function (_super) {
     __extends(Varline, _super);
+
     function Varline() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.var_def_index = -1;
@@ -1284,6 +1411,7 @@ var Varline = /** @class */ (function (_super) {
 exports.Varline = Varline;
 var Meta = /** @class */ (function (_super) {
     __extends(Meta, _super);
+
     function Meta() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -1310,6 +1438,7 @@ var Meta = /** @class */ (function (_super) {
 exports.Meta = Meta;
 var Timeline = /** @class */ (function (_super) {
     __extends(Timeline, _super);
+
     function Timeline() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.type = "sprite";
@@ -1374,6 +1503,7 @@ var Timeline = /** @class */ (function (_super) {
 exports.Timeline = Timeline;
 var SoundlineKeyframe = /** @class */ (function (_super) {
     __extends(SoundlineKeyframe, _super);
+
     function SoundlineKeyframe() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -1388,6 +1518,7 @@ var SoundlineKeyframe = /** @class */ (function (_super) {
 exports.SoundlineKeyframe = SoundlineKeyframe;
 var Soundline = /** @class */ (function (_super) {
     __extends(Soundline, _super);
+
     function Soundline() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -1407,6 +1538,7 @@ var Soundline = /** @class */ (function (_super) {
 exports.Soundline = Soundline;
 var EventlineKeyframe = /** @class */ (function (_super) {
     __extends(EventlineKeyframe, _super);
+
     function EventlineKeyframe() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -1421,6 +1553,7 @@ var EventlineKeyframe = /** @class */ (function (_super) {
 exports.EventlineKeyframe = EventlineKeyframe;
 var Eventline = /** @class */ (function (_super) {
     __extends(Eventline, _super);
+
     function Eventline() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -1458,6 +1591,7 @@ var MapInstruction = /** @class */ (function () {
 exports.MapInstruction = MapInstruction;
 var CharacterMap = /** @class */ (function (_super) {
     __extends(CharacterMap, _super);
+
     function CharacterMap() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.map_instruction_array = [];
@@ -1479,6 +1613,7 @@ var CharacterMap = /** @class */ (function (_super) {
 exports.CharacterMap = CharacterMap;
 var VarDef = /** @class */ (function (_super) {
     __extends(VarDef, _super);
+
     function VarDef() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -1503,6 +1638,7 @@ var VarDef = /** @class */ (function (_super) {
 exports.VarDef = VarDef;
 var VarDefs = /** @class */ (function (_super) {
     __extends(VarDefs, _super);
+
     function VarDefs() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -1514,8 +1650,7 @@ var VarDefs = /** @class */ (function (_super) {
         if (typeof (json.i) === 'object') {
             // in SCML files, json.i is an object or array of objects
             json_var_def_array = makeArray(json.i);
-        }
-        else if ((typeof (json) === 'object') && (typeof (json.length) === 'number')) {
+        } else if ((typeof (json) === 'object') && (typeof (json.length) === 'number')) {
             // in SCON files, json is an array
             json_var_def_array = makeArray(json);
         }
@@ -1529,6 +1664,7 @@ var VarDefs = /** @class */ (function (_super) {
 exports.VarDefs = VarDefs;
 var ObjInfo = /** @class */ (function (_super) {
     __extends(ObjInfo, _super);
+
     function ObjInfo(type) {
         var _this = _super.call(this) || this;
         _this.type = "unknown";
@@ -1560,6 +1696,7 @@ var SpriteFrame = /** @class */ (function () {
 exports.SpriteFrame = SpriteFrame;
 var SpriteObjInfo = /** @class */ (function (_super) {
     __extends(SpriteObjInfo, _super);
+
     function SpriteObjInfo() {
         return _super.call(this, 'sprite') || this;
     }
@@ -1578,6 +1715,7 @@ var SpriteObjInfo = /** @class */ (function (_super) {
 exports.SpriteObjInfo = SpriteObjInfo;
 var BoneObjInfo = /** @class */ (function (_super) {
     __extends(BoneObjInfo, _super);
+
     function BoneObjInfo() {
         var _this = _super.call(this, 'bone') || this;
         _this.w = 0;
@@ -1595,6 +1733,7 @@ var BoneObjInfo = /** @class */ (function (_super) {
 exports.BoneObjInfo = BoneObjInfo;
 var BoxObjInfo = /** @class */ (function (_super) {
     __extends(BoxObjInfo, _super);
+
     function BoxObjInfo() {
         var _this = _super.call(this, 'box') || this;
         _this.w = 0;
@@ -1612,6 +1751,7 @@ var BoxObjInfo = /** @class */ (function (_super) {
 exports.BoxObjInfo = BoxObjInfo;
 var Animation = /** @class */ (function (_super) {
     __extends(Animation, _super);
+
     function Animation() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.length = 0;
@@ -1655,6 +1795,7 @@ var Animation = /** @class */ (function (_super) {
 exports.Animation = Animation;
 var Entity = /** @class */ (function (_super) {
     __extends(Entity, _super);
+
     function Entity() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -1763,8 +1904,12 @@ var Data = /** @class */ (function () {
         });
         return this;
     };
-    Data.prototype.getEntities = function () { return this.entity_map; };
-    Data.prototype.getEntityKeys = function () { return this.entity_keys; };
+    Data.prototype.getEntities = function () {
+        return this.entity_map;
+    };
+    Data.prototype.getEntityKeys = function () {
+        return this.entity_keys;
+    };
     Data.prototype.getAnims = function (entity_key) {
         var entity = this.entity_map && this.entity_map[entity_key];
         if (entity) {
@@ -1813,7 +1958,7 @@ var Pose = /** @class */ (function () {
         }
         return null;
     };
-    Pose.prototype.getImageKey = function(object) {
+    Pose.prototype.getImageKey = function (object) {
         const folder = this.data.folder_array[object.folder_index];
         const file = folder.file_array[object.file_index];
         return file.name;
@@ -1978,12 +2123,12 @@ var Pose = /** @class */ (function () {
                 var parent_bone = pose_bone_array_1[bone.parent_index];
                 if (parent_bone) {
                     Space.combine(parent_bone.world_space, bone.local_space, bone.world_space);
-                }
-                else {
+                } else {
                     bone.world_space.copy(bone.local_space);
                 }
             });
             var data_object_array = mainline_keyframe1.object_ref_array;
+            var data_object_array2 = mainline_keyframe2.object_ref_array;
             var pose_object_array_1 = pose.object_array;
             data_object_array.forEach(function (data_object, object_index) {
                 var timeline_index = data_object.timeline_index;
@@ -2003,65 +2148,91 @@ var Pose = /** @class */ (function () {
                     pct = (mainline_time_1 - time1) / (time2 - time1);
                     pct = timeline_keyframe1.curve.evaluate(pct);
                 }
+                let isTween = true;
+                if (time2 > mainline_time2) {
+                    isTween = false;
+                    for (let k = 0; k < data_object_array2.length; k++) {
+                        let obj = data_object_array2[k];
+                        if (obj.timeline_index === timeline_index) {
+                            isTween = true;
+                            break;
+                        }
+                    }
+                }
                 switch (timeline.type) {
                     case 'sprite':
                         var pose_sprite = (pose_object_array_1[object_index] = (pose_object_array_1[object_index] || new SpriteObject()));
                         var sprite_timeline_keyframe1 = timeline_keyframe1;
                         var sprite_timeline_keyframe2 = timeline_keyframe2;
-                        pose_sprite.copy(sprite_timeline_keyframe1.sprite).tween(sprite_timeline_keyframe2.sprite, pct, timeline_keyframe1.spin);
-                        pose_sprite.name = timeline.name; // set name from timeline
-                        pose_sprite.parent_index = data_object.parent_index; // set parent from object_ref
+                        pose_sprite.copy(sprite_timeline_keyframe1.sprite);
+                        if (isTween)
+                            pose_sprite.tween(sprite_timeline_keyframe2.sprite, pct, timeline_keyframe1.spin);
+                        pose_sprite.name = timeline.name;
+                        pose_sprite.parent_index = data_object.parent_index;
                         pose_sprite.imgKey = pose.getImageKey(pose_sprite);
                         break;
                     case 'bone':
                         var pose_bone = (pose_object_array_1[object_index] = (pose_object_array_1[object_index] || new Bone()));
                         var bone_timeline_keyframe1 = timeline_keyframe1;
                         var bone_timeline_keyframe2 = timeline_keyframe2;
-                        pose_bone.copy(bone_timeline_keyframe1.bone).tween(bone_timeline_keyframe2.bone, pct, timeline_keyframe1.spin);
-                        pose_bone.name = timeline.name; // set name from timeline
-                        pose_bone.parent_index = data_object.parent_index; // set parent from object_ref
+                        pose_bone.copy(bone_timeline_keyframe1.bone);
+                        if (isTween)
+                            pose_bone.tween(bone_timeline_keyframe2.bone, pct, timeline_keyframe1.spin);
+                        pose_bone.name = timeline.name;
+                        pose_bone.parent_index = data_object.parent_index;
                         break;
                     case 'box':
                         var pose_box = (pose_object_array_1[object_index] = (pose_object_array_1[object_index] || new BoxObject()));
                         var box_timeline_keyframe1 = timeline_keyframe1;
                         var box_timeline_keyframe2 = timeline_keyframe2;
-                        pose_box.copy(box_timeline_keyframe1.box).tween(box_timeline_keyframe2.box, pct, timeline_keyframe1.spin);
-                        pose_box.name = timeline.name; // set name from timeline
-                        pose_box.parent_index = data_object.parent_index; // set parent from object_ref
+                        pose_box.copy(box_timeline_keyframe1.box);
+                        if (isTween)
+                            pose_box.tween(box_timeline_keyframe2.box, pct, timeline_keyframe1.spin);
+                        pose_box.name = timeline.name;
+                        pose_box.parent_index = data_object.parent_index;
                         break;
                     case 'point':
                         var pose_point = (pose_object_array_1[object_index] = (pose_object_array_1[object_index] || new PointObject()));
                         var point_timeline_keyframe1 = timeline_keyframe1;
                         var point_timeline_keyframe2 = timeline_keyframe2;
-                        pose_point.copy(point_timeline_keyframe1.point).tween(point_timeline_keyframe2.point, pct, timeline_keyframe1.spin);
+                        pose_point.copy(point_timeline_keyframe1.point);
+                        if (isTween)
+                            pose_point.tween(point_timeline_keyframe2.point, pct, timeline_keyframe1.spin);
                         pose_point.name = timeline.name;
-                        pose_point.parent_index = data_object.parent_index; // set parent from object_ref
+                        pose_point.parent_index = data_object.parent_index;
                         break;
                     case 'sound':
                         var pose_sound = (pose_object_array_1[object_index] = (pose_object_array_1[object_index] || new SoundObject()));
                         var sound_timeline_keyframe1 = timeline_keyframe1;
                         var sound_timeline_keyframe2 = timeline_keyframe2;
-                        pose_sound.copy(sound_timeline_keyframe1.sound).tween(sound_timeline_keyframe2.sound, pct, timeline_keyframe1.spin);
+                        pose_sound.copy(sound_timeline_keyframe1.sound)
+                        if (isTween)
+                            pose_sound.tween(sound_timeline_keyframe2.sound, pct, timeline_keyframe1.spin);
                         pose_sound.name = timeline.name;
                         break;
                     case 'entity':
                         var pose_entity = (pose_object_array_1[object_index] = (pose_object_array_1[object_index] || new EntityObject()));
                         var entity_timeline_keyframe1 = timeline_keyframe1;
                         var entity_timeline_keyframe2 = timeline_keyframe2;
-                        pose_entity.copy(entity_timeline_keyframe1.entity).tween(entity_timeline_keyframe2.entity, pct, timeline_keyframe1.spin);
+                        pose_entity.copy(entity_timeline_keyframe1.entity);
+                        if (isTween)
+                            pose_entity.tween(entity_timeline_keyframe2.entity, pct, timeline_keyframe1.spin);
                         pose_entity.name = timeline.name;
-                        pose_entity.parent_index = data_object.parent_index; // set parent from object_ref
+                        pose_entity.parent_index = data_object.parent_index;
                         break;
                     case 'variable':
                         var pose_variable = (pose_object_array_1[object_index] = (pose_object_array_1[object_index] || new VariableObject()));
                         var variable_timeline_keyframe1 = timeline_keyframe1;
                         var variable_timeline_keyframe2 = timeline_keyframe2;
                         pose_variable.name = timeline.name;
-                        pose_variable.copy(variable_timeline_keyframe1.variable).tween(variable_timeline_keyframe2.variable, pct, timeline_keyframe1.spin);
+                        pose_variable.copy(variable_timeline_keyframe1.variable);
+                        if (isTween)
+                            pose_variable.tween(variable_timeline_keyframe2.variable, pct, timeline_keyframe1.spin);
                         break;
                     default:
                         throw new Error(timeline.type);
                 }
+                
             });
             // clamp output object array
             pose_object_array_1.length = data_object_array.length;
@@ -2102,8 +2273,7 @@ var Pose = /** @class */ (function () {
                         var bone = pose_bone_array_1[sprite_object.parent_index];
                         if (bone) {
                             Space.combine(bone.world_space, sprite_object.local_space, sprite_object.world_space);
-                        }
-                        else {
+                        } else {
                             sprite_object.world_space.copy(sprite_object.local_space);
                         }
                         var folder = pose.data.folder_array[sprite_object.folder_index];
@@ -2116,59 +2286,59 @@ var Pose = /** @class */ (function () {
                             Space.translate(sprite_object.world_space, offset_x, offset_y);
                         }
                         break;
-                    case 'bone': {
-                        var bone_object = object;
-                        var bone_1 = pose_bone_array_1[bone_object.parent_index];
-                        if (bone_1) {
-                            Space.combine(bone_1.world_space, bone_object.local_space, bone_object.world_space);
+                    case 'bone':
+                        {
+                            var bone_object = object;
+                            var bone_1 = pose_bone_array_1[bone_object.parent_index];
+                            if (bone_1) {
+                                Space.combine(bone_1.world_space, bone_object.local_space, bone_object.world_space);
+                            } else {
+                                bone_object.world_space.copy(bone_object.local_space);
+                            }
+                            break;
                         }
-                        else {
-                            bone_object.world_space.copy(bone_object.local_space);
+                    case 'box':
+                        {
+                            var box_object = object;
+                            var bone_2 = pose_bone_array_1[box_object.parent_index];
+                            if (bone_2) {
+                                Space.combine(bone_2.world_space, box_object.local_space, box_object.world_space);
+                            } else {
+                                box_object.world_space.copy(box_object.local_space);
+                            }
+                            var obj_info = entity.obj_info_map[object.name];
+                            if (obj_info) {
+                                var box_obj_info = obj_info;
+                                var offset_x = (0.5 - box_object.pivot.x) * box_obj_info.w;
+                                var offset_y = (0.5 - box_object.pivot.y) * box_obj_info.h;
+                                Space.translate(box_object.world_space, offset_x, offset_y);
+                            }
+                            break;
                         }
-                        break;
-                    }
-                    case 'box': {
-                        var box_object = object;
-                        var bone_2 = pose_bone_array_1[box_object.parent_index];
-                        if (bone_2) {
-                            Space.combine(bone_2.world_space, box_object.local_space, box_object.world_space);
+                    case 'point':
+                        {
+                            var point_object = object;
+                            var bone_3 = pose_bone_array_1[point_object.parent_index];
+                            if (bone_3) {
+                                Space.combine(bone_3.world_space, point_object.local_space, point_object.world_space);
+                            } else {
+                                point_object.world_space.copy(point_object.local_space);
+                            }
+                            break;
                         }
-                        else {
-                            box_object.world_space.copy(box_object.local_space);
-                        }
-                        var obj_info = entity.obj_info_map[object.name];
-                        if (obj_info) {
-                            var box_obj_info = obj_info;
-                            var offset_x = (0.5 - box_object.pivot.x) * box_obj_info.w;
-                            var offset_y = (0.5 - box_object.pivot.y) * box_obj_info.h;
-                            Space.translate(box_object.world_space, offset_x, offset_y);
-                        }
-                        break;
-                    }
-                    case 'point': {
-                        var point_object = object;
-                        var bone_3 = pose_bone_array_1[point_object.parent_index];
-                        if (bone_3) {
-                            Space.combine(bone_3.world_space, point_object.local_space, point_object.world_space);
-                        }
-                        else {
-                            point_object.world_space.copy(point_object.local_space);
-                        }
-                        break;
-                    }
                     case 'sound':
                         break;
-                    case 'entity': {
-                        var entity_object = object;
-                        var bone_4 = pose_bone_array_1[entity_object.parent_index];
-                        if (bone_4) {
-                            Space.combine(bone_4.world_space, entity_object.local_space, entity_object.world_space);
+                    case 'entity':
+                        {
+                            var entity_object = object;
+                            var bone_4 = pose_bone_array_1[entity_object.parent_index];
+                            if (bone_4) {
+                                Space.combine(bone_4.world_space, entity_object.local_space, entity_object.world_space);
+                            } else {
+                                entity_object.world_space.copy(entity_object.local_space);
+                            }
+                            break;
                         }
-                        else {
-                            entity_object.world_space.copy(entity_object.local_space);
-                        }
-                        break;
-                    }
                     case 'variable':
                         break;
                     default:
@@ -2192,8 +2362,7 @@ var Pose = /** @class */ (function () {
                             var anim_length = sub_pose.curAnimLength();
                             var sub_time = entity_object.animation_time * anim_length;
                             sub_pose.setTime(sub_time);
-                        }
-                        else {
+                        } else {
                             var anim_length = sub_pose.curAnimLength();
                             var sub_time = entity_object.animation_time * anim_length;
                             var sub_dt = sub_time - sub_pose.getTime();
@@ -2210,7 +2379,11 @@ var Pose = /** @class */ (function () {
                     var folder = pose.data.folder_array[sound_keyframe.sound.folder_index];
                     var file = folder && folder.file_array[sound_keyframe.sound.file_index];
                     // console.log(prev_time, sound_keyframe.time, time, "sound", file.name);
-                    pose.sound_array.push({ name: file.name, volume: sound_keyframe.sound.volume, panning: sound_keyframe.sound.panning });
+                    pose.sound_array.push({
+                        name: file.name,
+                        volume: sound_keyframe.sound.volume,
+                        panning: sound_keyframe.sound.panning
+                    });
                 }
                 if (elapsed_time < 0) {
                     if (wrapped_min) {
@@ -2225,8 +2398,7 @@ var Pose = /** @class */ (function () {
                                 add_sound(sound_keyframe);
                             }
                         });
-                    }
-                    else {
+                    } else {
                         // min       time          prev_time    max
                         //  |         |                |         |
                         //            o<---------------x
@@ -2237,8 +2409,7 @@ var Pose = /** @class */ (function () {
                             }
                         });
                     }
-                }
-                else {
+                } else {
                     if (wrapped_max) {
                         // min       time          prev_time    max
                         //  |         |                |         |
@@ -2251,8 +2422,7 @@ var Pose = /** @class */ (function () {
                                 add_sound(sound_keyframe);
                             }
                         });
-                    }
-                    else {
+                    } else {
                         // min    prev_time           time      max
                         //  |         |                |         |
                         //            x--------------->o
@@ -2285,8 +2455,7 @@ var Pose = /** @class */ (function () {
                                 add_event(event_keyframe);
                             }
                         });
-                    }
-                    else {
+                    } else {
                         // min       time          prev_time    max
                         //  |         |                |         |
                         //            o<---------------x
@@ -2297,8 +2466,7 @@ var Pose = /** @class */ (function () {
                             }
                         });
                     }
-                }
-                else {
+                } else {
                     if (wrapped_max) {
                         // min       time          prev_time    max
                         //  |         |                |         |
@@ -2311,8 +2479,7 @@ var Pose = /** @class */ (function () {
                                 add_event(event_keyframe);
                             }
                         });
-                    }
-                    else {
+                    } else {
                         // min    prev_time           time      max
                         //  |         |                |         |
                         //            x--------------->o
@@ -2350,8 +2517,7 @@ var Pose = /** @class */ (function () {
                                     add_tag_1(tag_keyframe);
                                 }
                             });
-                        }
-                        else {
+                        } else {
                             // min       time          prev_time    max
                             //  |         |                |         |
                             //            o<---------------x
@@ -2362,8 +2528,7 @@ var Pose = /** @class */ (function () {
                                 }
                             });
                         }
-                    }
-                    else {
+                    } else {
                         if (wrapped_max) {
                             // min       time          prev_time    max
                             //  |         |                |         |
@@ -2376,8 +2541,7 @@ var Pose = /** @class */ (function () {
                                     add_tag_1(tag_keyframe);
                                 }
                             });
-                        }
-                        else {
+                        } else {
                             // min    prev_time           time      max
                             //  |         |                |         |
                             //            x--------------->o

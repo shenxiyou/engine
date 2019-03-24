@@ -1,8 +1,8 @@
 let spriter = require("./lib/spriter-js");
 let _frameTime = 60;
 let AnimationCache = cc.Class({
-    name:"AnimationCache",
-    ctor () {
+    name: "AnimationCache",
+    ctor() {
         this.frames = [];
         this.totalTime = 0;
         this._isCompleted = false;
@@ -16,21 +16,19 @@ let AnimationCache = cc.Class({
         let len = pose.getAnimLength();
         let _currentAnimationTime = -1;
         let frameIdx = 0;
-        let totalTime = 0;
         let _isCompleted = false;
         do {
             pose.strike();
-            this._updateFrame(pose, frameIdx);
-            frameIdx++;
             let newTime = pose.getTime();
             if (newTime > _currentAnimationTime) {
                 _currentAnimationTime = newTime;
+                this._updateFrame(pose, frameIdx);
+                frameIdx++;
+                pose.update(_frameTime);
             } else {
                 _isCompleted = true;
             }
-            totalTime += _frameTime;
-            pose.update(_frameTime);
-        } while (!_isCompleted && totalTime < len);
+        } while (!_isCompleted);
         this.totalTime = len / 1000;
         // Update frame length.
         this.frames.length = frameIdx;
@@ -46,24 +44,24 @@ let AnimationCache = cc.Class({
         }
         this.frames[frameIdx] = list;
     },
-    clear () {
-        
+    clear() {
+
     }
 });
 
 let SpriterCache = cc.Class({
-    name:"SpriterCache",
-    ctor () {
+    name: "SpriterCache",
+    ctor() {
         this._animationPool = {};
         this._spriterCache = {};
     },
 
-    clear () {
+    clear() {
         this._animationPool = {};
         this._spriterCache = {};
     },
 
-    removeSpriter (uuid) {
+    removeSpriter(uuid) {
         var spriterInfo = this._spriterCache[uuid];
         if (!spriterInfo) return;
         let animationsCache = spriterInfo.animationsCache;
@@ -77,11 +75,11 @@ let SpriterCache = cc.Class({
         delete this._spriterCache[uuid];
     },
 
-    resetSpriter (uuid) {
+    resetSpriter(uuid) {
         var spriterInfo = this._spriterCache[uuid];
         if (!spriterInfo) return;
         let animationsCache = spriterInfo.animationsCache;
-        for (var aniKey in animationsCache) {            
+        for (var aniKey in animationsCache) {
             let animationCache = animationsCache[aniKey];
             if (!animationCache) continue;
             this._animationPool[uuid + "#" + aniKey] = animationCache;
@@ -89,18 +87,18 @@ let SpriterCache = cc.Class({
         }
     },
 
-    getSpriterCache (uuid, sconAsset) {
+    getSpriterCache(uuid, sconAsset) {
         let spriterInfo = this._spriterCache[uuid];
         if (!spriterInfo) {
             this._spriterCache[uuid] = spriterInfo = {
-                pose : sconAsset.getRuntimeData(),
-                animationsCache : {},
+                pose: sconAsset.getRuntimeData(),
+                animationsCache: {},
             };
         }
         return spriterInfo;
     },
 
-    getAnimationCache (uuid, animationName) {
+    getAnimationCache(uuid, animationName) {
         let spriterInfo = this._spriterCache[uuid];
         if (!spriterInfo) return null;
 
@@ -108,7 +106,7 @@ let SpriterCache = cc.Class({
         return animationsCache[animationName];
     },
 
-    updateAnimationCache (uuid, animationName) {
+    updateAnimationCache(uuid, animationName) {
         let spriterInfo = this._spriterCache[uuid];
         let spriter = spriterInfo && spriterInfo.pose;
         if (!spriter) return null;
@@ -133,7 +131,7 @@ let SpriterCache = cc.Class({
         }
         animationCache.init(animationName);
         animationCache.update(spriter);
-        
+
         return animationCache;
     }
 });
