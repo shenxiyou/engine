@@ -1,6 +1,7 @@
 const TiledObjectGroup = require('./CCTiledObjectGroup');
 const RenderFlow = require('../core/renderer/render-flow');
 
+
 let tmxObjectAssembler = {
     useModel: false,
     updateRenderData(group) {
@@ -138,4 +139,5 @@ let tmxObjectAssembler = {
         group.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     }
 };
+
 module.exports = TiledObjectGroup._assembler = tmxObjectAssembler;

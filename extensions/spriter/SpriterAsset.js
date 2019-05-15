@@ -119,6 +119,10 @@ var SpriterAsset = cc.Class({
         });
         return this._spriteFrames;
     },
+    newPose(){
+        const data = new spriter.Data().load(JSON.parse(this.spriterJson));
+        return new spriter.Pose(data);
+    },
     /**
      * !#en get all SpriteFrame.
      * !#zh 获得动画数据
@@ -129,9 +133,8 @@ var SpriterAsset = cc.Class({
         if (this._spriterCache) {
             return this._spriterCache;
         }
-
-        const data = new spriter.Data().load(JSON.parse(this.spriterJson));
-        this._spriterCache = new spriter.Pose(data);
+        const data = this.newPose();
+        this._spriterCache = data;
 
         return this._spriterCache;
     },

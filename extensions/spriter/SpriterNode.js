@@ -1,4 +1,5 @@
 require("./SpriterAsset");
+
 let SpriterCache = require("./SpriterCache");
 let DefaultEntitysEnum = cc.Enum({
     'default': -1
@@ -49,7 +50,7 @@ let SpriterNode = cc.Class({
             set(value, force) {
                 if (this._sconFile !== value || (CC_EDITOR && force)) {
                     this._sconFile = value;
-                    if(CC_EDITOR) {
+                    if (CC_EDITOR) {
                         this.defaultAnimation = "";
                     }
                     this.defaultEntity = this._sconFile.getDefaultEntity();
@@ -197,7 +198,7 @@ let SpriterNode = cc.Class({
      * @return {Number}
      */
     getTime() {
-        let pose = this._sconFile.getRuntimeData();
+        let pose = this.pose;
         const newTime = pose.getTime();
         return newTime;
     },
@@ -209,7 +210,7 @@ let SpriterNode = cc.Class({
      */
     setTime(time) {
         if (!this._sconFile) return;
-        let pose = this._sconFile.getRuntimeData();
+        let pose = this.pose;
         this._isAniComplete = true;
         pose.setTime(time);
         pose.strike();
@@ -262,7 +263,7 @@ let SpriterNode = cc.Class({
      * @return {Number}
      */
     getAnimLength() {
-        let pose = this.sconAsset.getRuntimeData();
+        let pose = this.pose;
         if (!pose) return 0;
         return pose.getAnimLength();
     },
@@ -304,14 +305,13 @@ let SpriterNode = cc.Class({
     _applyFile: function () {
         let file = this._sconFile;
         if (file) {
+            this.pose = file.newPose();
             this._isAniComplete = true;
             if (CC_EDITOR) {
                 this._refreshInspector();
-                this.pose = this.sconAsset.getRuntimeData();
             } else {
                 this._spriterCache = SpriterCache.sharedCache;
-                let Info = this._spriterCache.getSpriterCache(this.sconAsset._uuid, this.sconAsset);
-                this.pose = Info.pose;
+                this._spriterCache.getSpriterCache(this.sconAsset._uuid, this.sconAsset);
             }
             this._initSpriter(file);
 
@@ -323,6 +323,11 @@ let SpriterNode = cc.Class({
     _initSpriter(file) {
         let name = this.animation;
         if (!this.defaultEntity || !this.defaultAnimation) return;
+        let pose = this.pose;
+        if (pose) {
+            pose.setEntity(this.defaultEntity);
+            pose.setAnim(this.animation || "");
+        }
         if (this._spriterCache) {
             let cache = this._spriterCache.getAnimationCache(this.sconAsset._uuid, name);
             if (!cache) {
@@ -336,9 +341,7 @@ let SpriterNode = cc.Class({
                 this._updateSpriteFrames();
             }
         } else {
-            let pose = file.getRuntimeData();
-            pose.setEntity(this.defaultEntity);
-            pose.setAnim(this.animation || "");
+
             this.setTime(0);
             this._isAniComplete = false;
         }
@@ -352,6 +355,7 @@ let SpriterNode = cc.Class({
         }
         this.node.removeAllChildren();
         this.sprites = {};
+        this.pose = null;
     },
     update(dt) {
         if (this._isAniComplete) return;
@@ -380,7 +384,7 @@ let SpriterNode = cc.Class({
         this._curFrame = frames[frameIdx];
     },
     _updateRealtime(dt) {
-        let pose = this._sconFile.getRuntimeData();
+        let pose = this.pose;
         if (!pose) return;
         pose.update(this.timeStep * this.timeRate * dt);
         pose.strike();
@@ -392,7 +396,7 @@ let SpriterNode = cc.Class({
     },
 
     _compareFinishAnimation() {
-        let pose = this._sconFile.getRuntimeData();
+        let pose = this.pose;
         const newTime = pose.getTime();
 
         if (newTime > this._currentAnimationTime) {
@@ -458,7 +462,7 @@ let SpriterNode = cc.Class({
         node.scaleX = worldSpace.scale.x;
         node.scaleY = worldSpace.scale.y;
         node.rotation = -worldSpace.rotation.deg;
-        
+
         useSprites[name] = node;
     },
     _updateSpriteFrames() {

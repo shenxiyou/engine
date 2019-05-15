@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", {
  */
 var extendStatics = Object.setPrototypeOf ||
     ({
-            __proto__: []
-        }
+        __proto__: []
+    }
         instanceof Array && function (d, b) {
             d.__proto__ = b;
         }) ||
@@ -23,7 +23,7 @@ var __extends = function (d, b) {
     }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-
+var spriter = {};
 var PI = 3.14159;
 
 function loadBool(json, key, def) {
@@ -37,14 +37,14 @@ function loadBool(json, key, def) {
             return def || false;
     }
 }
-exports.loadBool = loadBool;
+spriter.loadBool = loadBool;
 
 function saveBool(json, key, value, def) {
     if ((typeof (def) !== "boolean") || (value !== def)) {
         json[key] = value;
     }
 }
-exports.saveBool = saveBool;
+spriter.saveBool = saveBool;
 
 function FixNumber(num) {
     return Math.floor(num * 1000) / 1000;
@@ -69,14 +69,14 @@ function loadFloat(json, key, def) {
             return def || 0;
     }
 }
-exports.loadFloat = loadFloat;
+spriter.loadFloat = loadFloat;
 
 function saveFloat(json, key, value, def) {
     if ((typeof (def) !== "number") || (value !== def)) {
         json[key] = value;
     }
 }
-exports.saveFloat = saveFloat;
+spriter.saveFloat = saveFloat;
 
 function loadInt(json, key, def) {
     var value = json[key];
@@ -89,14 +89,14 @@ function loadInt(json, key, def) {
             return def || 0;
     }
 }
-exports.loadInt = loadInt;
+spriter.loadInt = loadInt;
 
 function saveInt(json, key, value, def) {
     if ((typeof (def) !== "number") || (value !== def)) {
         json[key] = value;
     }
 }
-exports.saveInt = saveInt;
+spriter.saveInt = saveInt;
 
 function loadString(json, key, def) {
     var value = json[key];
@@ -107,14 +107,14 @@ function loadString(json, key, def) {
             return def || "";
     }
 }
-exports.loadString = loadString;
+spriter.loadString = loadString;
 
 function saveString(json, key, value, def) {
     if ((typeof (def) !== "string") || (value !== def)) {
         json[key] = value;
     }
 }
-exports.saveString = saveString;
+spriter.saveString = saveString;
 
 function makeArray(value) {
     if ((typeof (value) === 'object') && (typeof (value.length) === 'number')) { // (Object.isArray(value))
@@ -139,7 +139,7 @@ function wrap(num, min, max) {
         return num;
     }
 }
-exports.wrap = wrap;
+spriter.wrap = wrap;
 
 function interpolateLinear(a, b, t) {
     return a + ((b - a) * t);
@@ -228,7 +228,7 @@ function interpolateBezier(x1, y1, x2, y2, t) {
 function tween(a, b, t) {
     return a + ((b - a) * t);
 }
-exports.tween = tween;
+spriter.tween = tween;
 
 function wrapAngleRadians(angle) {
     if (angle <= 0.0) {
@@ -237,7 +237,7 @@ function wrapAngleRadians(angle) {
         return ((angle + PI) % (2.0 * PI)) - PI;
     }
 }
-exports.wrapAngleRadians = wrapAngleRadians;
+spriter.wrapAngleRadians = wrapAngleRadians;
 
 function tweenAngleRadians(a, b, t, spin) {
     if (spin === 0) {
@@ -253,7 +253,7 @@ function tweenAngleRadians(a, b, t, spin) {
     }
     return wrapAngleRadians(a + (wrapAngleRadians(b - a) * t));
 }
-exports.tweenAngleRadians = tweenAngleRadians;
+spriter.tweenAngleRadians = tweenAngleRadians;
 var Angle = /** @class */ (function () {
     function Angle(rad) {
         if (rad === void 0) {
@@ -328,7 +328,7 @@ var Angle = /** @class */ (function () {
     };
     return Angle;
 }());
-exports.Angle = Angle;
+spriter.Angle = Angle;
 var Vector = /** @class */ (function () {
     function Vector(x, y) {
         if (x === void 0) {
@@ -398,7 +398,7 @@ var Vector = /** @class */ (function () {
     };
     return Vector;
 }());
-exports.Vector = Vector;
+spriter.Vector = Vector;
 var Position = /** @class */ (function (_super) {
     __extends(Position, _super);
 
@@ -407,7 +407,7 @@ var Position = /** @class */ (function (_super) {
     }
     return Position;
 }(Vector));
-exports.Position = Position;
+spriter.Position = Position;
 var Rotation = /** @class */ (function (_super) {
     __extends(Rotation, _super);
 
@@ -416,7 +416,7 @@ var Rotation = /** @class */ (function (_super) {
     }
     return Rotation;
 }(Angle));
-exports.Rotation = Rotation;
+spriter.Rotation = Rotation;
 var Scale = /** @class */ (function (_super) {
     __extends(Scale, _super);
 
@@ -430,7 +430,7 @@ var Scale = /** @class */ (function (_super) {
     };
     return Scale;
 }(Vector));
-exports.Scale = Scale;
+spriter.Scale = Scale;
 var Pivot = /** @class */ (function (_super) {
     __extends(Pivot, _super);
 
@@ -444,7 +444,7 @@ var Pivot = /** @class */ (function (_super) {
     };
     return Pivot;
 }(Vector));
-exports.Pivot = Pivot;
+spriter.Pivot = Pivot;
 /**
  * @constructor
  */
@@ -632,7 +632,7 @@ var Space = /** @class */ (function () {
     };
     return Space;
 }());
-exports.Space = Space;
+spriter.Space = Space;
 var Element = /** @class */ (function () {
     function Element() {
         this.id = -1;
@@ -645,7 +645,7 @@ var Element = /** @class */ (function () {
     };
     return Element;
 }());
-exports.Element = Element;
+spriter.Element = Element;
 var File = /** @class */ (function (_super) {
     __extends(File, _super);
 
@@ -664,7 +664,7 @@ var File = /** @class */ (function (_super) {
     };
     return File;
 }(Element));
-exports.File = File;
+spriter.File = File;
 var ImageFile = /** @class */ (function (_super) {
     __extends(ImageFile, _super);
 
@@ -685,7 +685,7 @@ var ImageFile = /** @class */ (function (_super) {
     };
     return ImageFile;
 }(File));
-exports.ImageFile = ImageFile;
+spriter.ImageFile = ImageFile;
 var SoundFile = /** @class */ (function (_super) {
     __extends(SoundFile, _super);
 
@@ -698,7 +698,7 @@ var SoundFile = /** @class */ (function (_super) {
     };
     return SoundFile;
 }(File));
-exports.SoundFile = SoundFile;
+spriter.SoundFile = SoundFile;
 var Folder = /** @class */ (function (_super) {
     __extends(Folder, _super);
 
@@ -728,7 +728,7 @@ var Folder = /** @class */ (function (_super) {
     };
     return Folder;
 }(Element));
-exports.Folder = Folder;
+spriter.Folder = Folder;
 var BaseObject = /** @class */ (function () {
     function BaseObject(type) {
         this.type = "unknown";
@@ -743,7 +743,7 @@ var BaseObject = /** @class */ (function () {
     };
     return BaseObject;
 }());
-exports.BaseObject = BaseObject;
+spriter.BaseObject = BaseObject;
 var SpriteObject = /** @class */ (function (_super) {
     __extends(SpriteObject, _super);
 
@@ -762,10 +762,10 @@ var SpriteObject = /** @class */ (function (_super) {
         return _this;
     }
     SpriteObject.prototype.clone = function (other) {
-            this.copy(other);
-            this.name = other.name;
-            this.imgKey = other.imgKey;
-        },
+        this.copy(other);
+        this.name = other.name;
+        this.imgKey = other.imgKey;
+    },
         SpriteObject.prototype.load = function (json) {
             _super.prototype.load.call(this, json);
             this.parent_index = loadInt(json, 'parent', -1);
@@ -804,7 +804,7 @@ var SpriteObject = /** @class */ (function (_super) {
     };
     return SpriteObject;
 }(BaseObject));
-exports.SpriteObject = SpriteObject;
+spriter.SpriteObject = SpriteObject;
 var Bone = /** @class */ (function (_super) {
     __extends(Bone, _super);
 
@@ -833,7 +833,7 @@ var Bone = /** @class */ (function (_super) {
     };
     return Bone;
 }(BaseObject));
-exports.Bone = Bone;
+spriter.Bone = Bone;
 var BoxObject = /** @class */ (function (_super) {
     __extends(BoxObject, _super);
 
@@ -867,7 +867,7 @@ var BoxObject = /** @class */ (function (_super) {
     };
     return BoxObject;
 }(BaseObject));
-exports.BoxObject = BoxObject;
+spriter.BoxObject = BoxObject;
 var PointObject = /** @class */ (function (_super) {
     __extends(PointObject, _super);
 
@@ -896,7 +896,7 @@ var PointObject = /** @class */ (function (_super) {
     };
     return PointObject;
 }(BaseObject));
-exports.PointObject = PointObject;
+spriter.PointObject = PointObject;
 var SoundObject = /** @class */ (function (_super) {
     __extends(SoundObject, _super);
 
@@ -932,7 +932,7 @@ var SoundObject = /** @class */ (function (_super) {
     };
     return SoundObject;
 }(BaseObject));
-exports.SoundObject = SoundObject;
+spriter.SoundObject = SoundObject;
 var EntityObject = /** @class */ (function (_super) {
     __extends(EntityObject, _super);
 
@@ -971,7 +971,7 @@ var EntityObject = /** @class */ (function (_super) {
     };
     return EntityObject;
 }(BaseObject));
-exports.EntityObject = EntityObject;
+spriter.EntityObject = EntityObject;
 var VariableObject = /** @class */ (function (_super) {
     __extends(VariableObject, _super);
 
@@ -985,10 +985,10 @@ var VariableObject = /** @class */ (function (_super) {
     VariableObject.prototype.copy = function (other) {
         return this;
     };
-    VariableObject.prototype.tween = function (other, pct, spin) {};
+    VariableObject.prototype.tween = function (other, pct, spin) { };
     return VariableObject;
 }(BaseObject));
-exports.VariableObject = VariableObject;
+spriter.VariableObject = VariableObject;
 var Ref = /** @class */ (function (_super) {
     __extends(Ref, _super);
 
@@ -1008,7 +1008,7 @@ var Ref = /** @class */ (function (_super) {
     };
     return Ref;
 }(Element));
-exports.Ref = Ref;
+spriter.Ref = Ref;
 var BoneRef = /** @class */ (function (_super) {
     __extends(BoneRef, _super);
 
@@ -1017,7 +1017,7 @@ var BoneRef = /** @class */ (function (_super) {
     }
     return BoneRef;
 }(Ref));
-exports.BoneRef = BoneRef;
+spriter.BoneRef = BoneRef;
 var ObjectRef = /** @class */ (function (_super) {
     __extends(ObjectRef, _super);
 
@@ -1033,7 +1033,7 @@ var ObjectRef = /** @class */ (function (_super) {
     };
     return ObjectRef;
 }(Ref));
-exports.ObjectRef = ObjectRef;
+spriter.ObjectRef = ObjectRef;
 var Keyframe = /** @class */ (function (_super) {
     __extends(Keyframe, _super);
 
@@ -1081,7 +1081,7 @@ var Keyframe = /** @class */ (function (_super) {
     };
     return Keyframe;
 }(Element));
-exports.Keyframe = Keyframe;
+spriter.Keyframe = Keyframe;
 var Curve = /** @class */ (function () {
     function Curve() {
         this.type = "linear";
@@ -1119,7 +1119,7 @@ var Curve = /** @class */ (function () {
     };
     return Curve;
 }());
-exports.Curve = Curve;
+spriter.Curve = Curve;
 var MainlineKeyframe = /** @class */ (function (_super) {
     __extends(MainlineKeyframe, _super);
 
@@ -1152,9 +1152,9 @@ var MainlineKeyframe = /** @class */ (function (_super) {
     };
     return MainlineKeyframe;
 }(Keyframe));
-exports.MainlineKeyframe = MainlineKeyframe;
+spriter.MainlineKeyframe = MainlineKeyframe;
 var Mainline = /** @class */ (function () {
-    function Mainline() {}
+    function Mainline() { }
     Mainline.prototype.load = function (json) {
         var mainline = this;
         mainline.keyframe_array = [];
@@ -1167,7 +1167,7 @@ var Mainline = /** @class */ (function () {
     };
     return Mainline;
 }());
-exports.Mainline = Mainline;
+spriter.Mainline = Mainline;
 var TimelineKeyframe = /** @class */ (function (_super) {
     __extends(TimelineKeyframe, _super);
 
@@ -1189,7 +1189,7 @@ var TimelineKeyframe = /** @class */ (function (_super) {
     };
     return TimelineKeyframe;
 }(Keyframe));
-exports.TimelineKeyframe = TimelineKeyframe;
+spriter.TimelineKeyframe = TimelineKeyframe;
 var SpriteTimelineKeyframe = /** @class */ (function (_super) {
     __extends(SpriteTimelineKeyframe, _super);
 
@@ -1203,7 +1203,7 @@ var SpriteTimelineKeyframe = /** @class */ (function (_super) {
     };
     return SpriteTimelineKeyframe;
 }(TimelineKeyframe));
-exports.SpriteTimelineKeyframe = SpriteTimelineKeyframe;
+spriter.SpriteTimelineKeyframe = SpriteTimelineKeyframe;
 var BoneTimelineKeyframe = /** @class */ (function (_super) {
     __extends(BoneTimelineKeyframe, _super);
 
@@ -1218,7 +1218,7 @@ var BoneTimelineKeyframe = /** @class */ (function (_super) {
     };
     return BoneTimelineKeyframe;
 }(TimelineKeyframe));
-exports.BoneTimelineKeyframe = BoneTimelineKeyframe;
+spriter.BoneTimelineKeyframe = BoneTimelineKeyframe;
 var BoxTimelineKeyframe = /** @class */ (function (_super) {
     __extends(BoxTimelineKeyframe, _super);
 
@@ -1233,7 +1233,7 @@ var BoxTimelineKeyframe = /** @class */ (function (_super) {
     };
     return BoxTimelineKeyframe;
 }(TimelineKeyframe));
-exports.BoxTimelineKeyframe = BoxTimelineKeyframe;
+spriter.BoxTimelineKeyframe = BoxTimelineKeyframe;
 var PointTimelineKeyframe = /** @class */ (function (_super) {
     __extends(PointTimelineKeyframe, _super);
 
@@ -1248,7 +1248,7 @@ var PointTimelineKeyframe = /** @class */ (function (_super) {
     };
     return PointTimelineKeyframe;
 }(TimelineKeyframe));
-exports.PointTimelineKeyframe = PointTimelineKeyframe;
+spriter.PointTimelineKeyframe = PointTimelineKeyframe;
 var SoundTimelineKeyframe = /** @class */ (function (_super) {
     __extends(SoundTimelineKeyframe, _super);
 
@@ -1263,7 +1263,7 @@ var SoundTimelineKeyframe = /** @class */ (function (_super) {
     };
     return SoundTimelineKeyframe;
 }(TimelineKeyframe));
-exports.SoundTimelineKeyframe = SoundTimelineKeyframe;
+spriter.SoundTimelineKeyframe = SoundTimelineKeyframe;
 var EntityTimelineKeyframe = /** @class */ (function (_super) {
     __extends(EntityTimelineKeyframe, _super);
 
@@ -1278,7 +1278,7 @@ var EntityTimelineKeyframe = /** @class */ (function (_super) {
     };
     return EntityTimelineKeyframe;
 }(TimelineKeyframe));
-exports.EntityTimelineKeyframe = EntityTimelineKeyframe;
+spriter.EntityTimelineKeyframe = EntityTimelineKeyframe;
 var VariableTimelineKeyframe = /** @class */ (function (_super) {
     __extends(VariableTimelineKeyframe, _super);
 
@@ -1293,7 +1293,7 @@ var VariableTimelineKeyframe = /** @class */ (function (_super) {
     };
     return VariableTimelineKeyframe;
 }(TimelineKeyframe));
-exports.VariableTimelineKeyframe = VariableTimelineKeyframe;
+spriter.VariableTimelineKeyframe = VariableTimelineKeyframe;
 var TagDef = /** @class */ (function (_super) {
     __extends(TagDef, _super);
 
@@ -1308,7 +1308,7 @@ var TagDef = /** @class */ (function (_super) {
     };
     return TagDef;
 }(Element));
-exports.TagDef = TagDef;
+spriter.TagDef = TagDef;
 var Tag = /** @class */ (function (_super) {
     __extends(Tag, _super);
 
@@ -1324,7 +1324,7 @@ var Tag = /** @class */ (function (_super) {
     };
     return Tag;
 }(Element));
-exports.Tag = Tag;
+spriter.Tag = Tag;
 var TaglineKeyframe = /** @class */ (function (_super) {
     __extends(TaglineKeyframe, _super);
 
@@ -1343,7 +1343,7 @@ var TaglineKeyframe = /** @class */ (function (_super) {
     };
     return TaglineKeyframe;
 }(Keyframe));
-exports.TaglineKeyframe = TaglineKeyframe;
+spriter.TaglineKeyframe = TaglineKeyframe;
 var Tagline = /** @class */ (function (_super) {
     __extends(Tagline, _super);
 
@@ -1364,7 +1364,7 @@ var Tagline = /** @class */ (function (_super) {
     };
     return Tagline;
 }(Element));
-exports.Tagline = Tagline;
+spriter.Tagline = Tagline;
 var VarlineKeyframe = /** @class */ (function (_super) {
     __extends(VarlineKeyframe, _super);
 
@@ -1386,7 +1386,7 @@ var VarlineKeyframe = /** @class */ (function (_super) {
     };
     return VarlineKeyframe;
 }(Keyframe));
-exports.VarlineKeyframe = VarlineKeyframe;
+spriter.VarlineKeyframe = VarlineKeyframe;
 var Varline = /** @class */ (function (_super) {
     __extends(Varline, _super);
 
@@ -1408,7 +1408,7 @@ var Varline = /** @class */ (function (_super) {
     };
     return Varline;
 }(Element));
-exports.Varline = Varline;
+spriter.Varline = Varline;
 var Meta = /** @class */ (function (_super) {
     __extends(Meta, _super);
 
@@ -1435,7 +1435,7 @@ var Meta = /** @class */ (function (_super) {
     };
     return Meta;
 }(Element));
-exports.Meta = Meta;
+spriter.Meta = Meta;
 var Timeline = /** @class */ (function (_super) {
     __extends(Timeline, _super);
 
@@ -1500,7 +1500,7 @@ var Timeline = /** @class */ (function (_super) {
     };
     return Timeline;
 }(Element));
-exports.Timeline = Timeline;
+spriter.Timeline = Timeline;
 var SoundlineKeyframe = /** @class */ (function (_super) {
     __extends(SoundlineKeyframe, _super);
 
@@ -1515,7 +1515,7 @@ var SoundlineKeyframe = /** @class */ (function (_super) {
     };
     return SoundlineKeyframe;
 }(Keyframe));
-exports.SoundlineKeyframe = SoundlineKeyframe;
+spriter.SoundlineKeyframe = SoundlineKeyframe;
 var Soundline = /** @class */ (function (_super) {
     __extends(Soundline, _super);
 
@@ -1535,7 +1535,7 @@ var Soundline = /** @class */ (function (_super) {
     };
     return Soundline;
 }(Element));
-exports.Soundline = Soundline;
+spriter.Soundline = Soundline;
 var EventlineKeyframe = /** @class */ (function (_super) {
     __extends(EventlineKeyframe, _super);
 
@@ -1550,7 +1550,7 @@ var EventlineKeyframe = /** @class */ (function (_super) {
     };
     return EventlineKeyframe;
 }(Keyframe));
-exports.EventlineKeyframe = EventlineKeyframe;
+spriter.EventlineKeyframe = EventlineKeyframe;
 var Eventline = /** @class */ (function (_super) {
     __extends(Eventline, _super);
 
@@ -1570,7 +1570,7 @@ var Eventline = /** @class */ (function (_super) {
     };
     return Eventline;
 }(Element));
-exports.Eventline = Eventline;
+spriter.Eventline = Eventline;
 var MapInstruction = /** @class */ (function () {
     function MapInstruction() {
         this.folder_index = -1;
@@ -1588,7 +1588,7 @@ var MapInstruction = /** @class */ (function () {
     };
     return MapInstruction;
 }());
-exports.MapInstruction = MapInstruction;
+spriter.MapInstruction = MapInstruction;
 var CharacterMap = /** @class */ (function (_super) {
     __extends(CharacterMap, _super);
 
@@ -1610,7 +1610,7 @@ var CharacterMap = /** @class */ (function (_super) {
     };
     return CharacterMap;
 }(Element));
-exports.CharacterMap = CharacterMap;
+spriter.CharacterMap = CharacterMap;
 var VarDef = /** @class */ (function (_super) {
     __extends(VarDef, _super);
 
@@ -1635,7 +1635,7 @@ var VarDef = /** @class */ (function (_super) {
     };
     return VarDef;
 }(Element));
-exports.VarDef = VarDef;
+spriter.VarDef = VarDef;
 var VarDefs = /** @class */ (function (_super) {
     __extends(VarDefs, _super);
 
@@ -1661,7 +1661,7 @@ var VarDefs = /** @class */ (function (_super) {
     };
     return VarDefs;
 }(Element));
-exports.VarDefs = VarDefs;
+spriter.VarDefs = VarDefs;
 var ObjInfo = /** @class */ (function (_super) {
     __extends(ObjInfo, _super);
 
@@ -1680,7 +1680,7 @@ var ObjInfo = /** @class */ (function (_super) {
     };
     return ObjInfo;
 }(Element));
-exports.ObjInfo = ObjInfo;
+spriter.ObjInfo = ObjInfo;
 var SpriteFrame = /** @class */ (function () {
     function SpriteFrame() {
         this.folder_index = -1;
@@ -1693,7 +1693,7 @@ var SpriteFrame = /** @class */ (function () {
     };
     return SpriteFrame;
 }());
-exports.SpriteFrame = SpriteFrame;
+spriter.SpriteFrame = SpriteFrame;
 var SpriteObjInfo = /** @class */ (function (_super) {
     __extends(SpriteObjInfo, _super);
 
@@ -1712,7 +1712,7 @@ var SpriteObjInfo = /** @class */ (function (_super) {
     };
     return SpriteObjInfo;
 }(ObjInfo));
-exports.SpriteObjInfo = SpriteObjInfo;
+spriter.SpriteObjInfo = SpriteObjInfo;
 var BoneObjInfo = /** @class */ (function (_super) {
     __extends(BoneObjInfo, _super);
 
@@ -1730,7 +1730,7 @@ var BoneObjInfo = /** @class */ (function (_super) {
     };
     return BoneObjInfo;
 }(ObjInfo));
-exports.BoneObjInfo = BoneObjInfo;
+spriter.BoneObjInfo = BoneObjInfo;
 var BoxObjInfo = /** @class */ (function (_super) {
     __extends(BoxObjInfo, _super);
 
@@ -1748,7 +1748,7 @@ var BoxObjInfo = /** @class */ (function (_super) {
     };
     return BoxObjInfo;
 }(ObjInfo));
-exports.BoxObjInfo = BoxObjInfo;
+spriter.BoxObjInfo = BoxObjInfo;
 var Animation = /** @class */ (function (_super) {
     __extends(Animation, _super);
 
@@ -1792,7 +1792,7 @@ var Animation = /** @class */ (function (_super) {
     };
     return Animation;
 }(Element));
-exports.Animation = Animation;
+spriter.Animation = Animation;
 var Entity = /** @class */ (function (_super) {
     __extends(Entity, _super);
 
@@ -1850,7 +1850,7 @@ var Entity = /** @class */ (function (_super) {
     };
     return Entity;
 }(Element));
-exports.Entity = Entity;
+spriter.Entity = Entity;
 var Data = /** @class */ (function () {
     function Data() {
         this.folder_array = [];
@@ -1926,7 +1926,7 @@ var Data = /** @class */ (function () {
     };
     return Data;
 }());
-exports.Data = Data;
+spriter.Data = Data;
 var Pose = /** @class */ (function () {
     function Pose(data) {
         this.entity_key = "";
@@ -2232,7 +2232,7 @@ var Pose = /** @class */ (function () {
                     default:
                         throw new Error(timeline.type);
                 }
-                
+
             });
             // clamp output object array
             pose_object_array_1.length = data_object_array.length;
@@ -2594,4 +2594,5 @@ var Pose = /** @class */ (function () {
     };
     return Pose;
 }());
-exports.Pose = Pose;
+spriter.Pose = Pose;
+module.exports = spriter;

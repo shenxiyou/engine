@@ -410,12 +410,12 @@ cc.Director.prototype = {
     runSceneImmediate: function (scene, onBeforeLoadScene, onLaunched) {
         cc.assertID(scene instanceof cc.Scene, 1216);
 
-        CC_BUILD && CC_DEBUG && console.time('InitScene');
+        // CC_BUILD && CC_DEBUG && console.time('InitScene');
         scene._load();  // ensure scene initialized
-        CC_BUILD && CC_DEBUG && console.timeEnd('InitScene');
+        // CC_BUILD && CC_DEBUG && console.timeEnd('InitScene');
 
         // Re-attach or replace persist nodes
-        CC_BUILD && CC_DEBUG && console.time('AttachPersist');
+        // CC_BUILD && CC_DEBUG && console.time('AttachPersist');
         var persistNodeList = Object.keys(game._persistRootNodes).map(function (x) {
             return game._persistRootNodes[x];
         });
@@ -432,19 +432,19 @@ cc.Director.prototype = {
                 node.parent = scene;
             }
         }
-        CC_BUILD && CC_DEBUG && console.timeEnd('AttachPersist');
+        // CC_BUILD && CC_DEBUG && console.timeEnd('AttachPersist');
 
         var oldScene = this._scene;
         if (!CC_EDITOR) {
             // auto release assets
-            CC_BUILD && CC_DEBUG && console.time('AutoRelease');
+            // CC_BUILD && CC_DEBUG && console.time('AutoRelease');
             var autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
             AutoReleaseUtils.autoRelease(autoReleaseAssets, scene.dependAssets, persistNodeList);
-            CC_BUILD && CC_DEBUG && console.timeEnd('AutoRelease');
+            // CC_BUILD && CC_DEBUG && console.timeEnd('AutoRelease');
         }
 
         // unload scene
-        CC_BUILD && CC_DEBUG && console.time('Destroy');
+        // CC_BUILD && CC_DEBUG && console.time('Destroy');
         if (cc.isValid(oldScene)) {
             oldScene.destroy();
         }
@@ -453,7 +453,7 @@ cc.Director.prototype = {
 
         // purge destroyed nodes belongs to old scene
         Obj._deferredDestroy();
-        CC_BUILD && CC_DEBUG && console.timeEnd('Destroy');
+        // CC_BUILD && CC_DEBUG && console.timeEnd('Destroy');
 
         if (onBeforeLoadScene) {
             onBeforeLoadScene();
@@ -463,9 +463,9 @@ cc.Director.prototype = {
         // Run an Entity Scene
         this._scene = scene;
 
-        CC_BUILD && CC_DEBUG && console.time('Activate');
+        // CC_BUILD && CC_DEBUG && console.time('Activate');
         scene._activate();
-        CC_BUILD && CC_DEBUG && console.timeEnd('Activate');
+        // CC_BUILD && CC_DEBUG && console.timeEnd('Activate');
 
         //start scene
         this.startAnimation();
@@ -630,9 +630,9 @@ cc.Director.prototype = {
             }
         }
         //cc.AssetLibrary.unloadAsset(uuid);     // force reload
-        console.time('LoadScene ' + uuid);
+        // console.time('LoadScene ' + uuid);
         cc.AssetLibrary.loadAsset(uuid, function (error, sceneAsset) {
-            console.timeEnd('LoadScene ' + uuid);
+            // console.timeEnd('LoadScene ' + uuid);
             var self = cc.director;
             self._loadingScene = '';
             if (error) {
