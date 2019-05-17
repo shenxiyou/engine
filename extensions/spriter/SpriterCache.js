@@ -29,9 +29,14 @@ let AnimationCache = cc.Class({
                 _isCompleted = true;
             }
         } while (!_isCompleted);
+        if (_currentAnimationTime != len) {
+            pose.setTime(len);
+            pose.strike();
+            this._updateFrame(pose, frameIdx);
+        }
         this.totalTime = len / 1000;
         // Update frame length.
-        this.frames.length = frameIdx;
+        // this.frames.length = frameIdx;
     },
     _updateFrame(pose, frameIdx) {
         let list = [];
