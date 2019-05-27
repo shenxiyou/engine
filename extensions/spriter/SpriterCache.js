@@ -29,8 +29,8 @@ let AnimationCache = cc.Class({
                 _isCompleted = true;
             }
         } while (!_isCompleted);
-        if (_currentAnimationTime != len) {
-            pose.setTime(len);
+        if (_currentAnimationTime < len) {
+            pose.setTime(len - 1);
             pose.strike();
             this._updateFrame(pose, frameIdx);
         }
