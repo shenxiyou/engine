@@ -24,8 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 const RenderComponent = require('../core/components/CCRenderComponent');
-const renderEngine = require('../core/renderer/render-engine');
- const SpriteMaterial = renderEngine.SpriteMaterial;
+const Material = require('../core/assets/material/CCMaterial');
 
 /**
  * !#en Renders the TMX object group.
@@ -48,7 +47,7 @@ let TiledObjectGroup = cc.Class({
      * @example
      * let offset = tMXObjectGroup.getPositionOffset();
      */
-    getPositionOffset () {
+    getPositionOffset() {
         return this._positionOffset;
     },
 
@@ -61,7 +60,7 @@ let TiledObjectGroup = cc.Class({
      * @example
      * let offset = tMXObjectGroup.getProperties();
      */
-    getProperties () {
+    getProperties() {
         this._properties;
     },
 
@@ -73,7 +72,7 @@ let TiledObjectGroup = cc.Class({
      * @example
      * let groupName = tMXObjectGroup.getGroupName;
      */
-    getGroupName () {
+    getGroupName() {
         return this._groupName;
     },
 
@@ -82,7 +81,7 @@ let TiledObjectGroup = cc.Class({
      * @param {String} propertyName
      * @return {Object}
      */
-    getProperty (propertyName) {
+    getProperty(propertyName) {
         return this._properties[propertyName.toString()];
     },
 
@@ -97,7 +96,7 @@ let TiledObjectGroup = cc.Class({
      * @example
      * let object = tMXObjectGroup.getObject("Group");
      */
-    getObject (objectName) {
+    getObject(objectName) {
         for (let i = 0, len = this._objects.length; i < len; i++) {
             let obj = this._objects[i];
             if (obj && obj.name === objectName) {
@@ -116,7 +115,7 @@ let TiledObjectGroup = cc.Class({
      * @example
      * let objects = tMXObjectGroup.getObjects();
      */
-    getObjects () {
+    getObjects() {
         return this._objects;
     },
     getTileSet(tilesets, gid) {
@@ -138,25 +137,25 @@ let TiledObjectGroup = cc.Class({
         for (; i < objects.length; i++) {
             let obj = objects[i];
             let go = parent.children[i];
-            if(!go) {
+            if (!go) {
                 go = new cc.Node();
                 parent.addChild(go);
             }
             go.name = obj.id + "";
             go.group = group;
             let sp = go.getComponent(cc.Sprite);
-            if(!sp) sp = go.addComponent(cc.Sprite);
+            if (!sp) sp = go.addComponent(cc.Sprite);
             let tileset = this.getTileSet(tilesets, obj.gid);
             let image = tileset.getImageByGid(obj.gid);
             sp.spriteFrame = image;
-            
+
             go.scale = 1;
             go.width = obj.width;
             go.height = obj.height;
             let pos = this.positionForTileCoord(cc.v2(obj.x, obj.y));
             go.position = pos.add(cc.v2(go.width / 2, go.height / 2));
         }
-        for(;i < parent.childrenCount;i++) {
+        for (; i < parent.childrenCount; i++) {
             let go = parent.children[i];
             go.removeFromParent();
         }
@@ -167,9 +166,9 @@ let TiledObjectGroup = cc.Class({
         let y = tileCoord.y - mapSize.height / 2;
         return cc.v2(x, y);
     },
-    _init (groupInfo, mapInfo) {
+    _init(groupInfo, mapInfo) {
         this._groupName = groupInfo.name;
-        this._positionOffset = cc.v2(groupInfo.offset.x,-groupInfo.offset.y);
+        this._positionOffset = cc.v2(groupInfo.offset.x, -groupInfo.offset.y);
         this._mapInfo = mapInfo;
         this._properties = groupInfo.getProperties();
 
@@ -185,7 +184,7 @@ let TiledObjectGroup = cc.Class({
                 height = (tileSize.height + mapInfo.getHexSideLength()) * Math.floor(mapSize.height / 2) + tileSize.height * (mapSize.height % 2);
             }
         } else {
-            width = mapSize.width * tileSize.width; 
+            width = mapSize.width * tileSize.width;
             height = mapSize.height * tileSize.height;
         }
         this.node.setContentSize(width, height);
@@ -215,7 +214,7 @@ let TiledObjectGroup = cc.Class({
         this._objects = objects;
         let tilesets = mapInfo.getTilesets();
         let obj = objects[0];
-        if(obj) {
+        if (obj) {
             let tileset = this.getTileSet(tilesets, obj.gid);
             let image = tileset.getImageByGid(obj.gid);
             this._texture = image.getTexture();
@@ -225,28 +224,48 @@ let TiledObjectGroup = cc.Class({
         this._activateMaterial();
     },
     getFrame(gid) {
-        if(!this.tileset) return;
+        if (!this.tileset) return;
         return this.tileset.getImageByGid(gid);
     },
-    _activateMaterial () {
-        let material = this._material;
-        if (!material) {
-            material = this._material = new SpriteMaterial();
-            material.useColor = false;
+    _activateMaterial() {
+        // If render type is canvas, just return.
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            this.markForUpdateRenderData(true);
+            this.markForRender(true);
+            return;
         }
 
+        let spriteFrame = this._spriteFrame;
+        // If spriteframe not loaded, disable render and return.
+        if (!spriteFrame || !spriteFrame.textureLoaded()) {
+            this.disableRender();
+            return;
+        }
+
+        // make sure material is belong to self.
+        let material = this.sharedMaterials[0];
+        if (!material) {
+            material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+            material.define('USE_TEXTURE', true);
+        }
+        else {
+            material = Material.getInstantiatedMaterial(material, this);
+        }
+
+
+        this.setMaterial(0, material);
+        this.markForRender(true);
+
         if (this._texture) {
-            // TODO: old texture in material have been released by loader
-            material.texture = this._texture;
+            material.setProperty('texture', this._texture);
             material.updateHash();
             this.markForUpdateRenderData(true);
             this.markForRender(true);
         }
         else {
-            this.disableRender();   
+            this.disableRender();
         }
-        
-        this._updateMaterial(material);
+
     }
 });
 
