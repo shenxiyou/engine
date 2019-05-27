@@ -19,7 +19,7 @@ let tmxObjectAssembler = {
         }
         let data = renderData._data;
         if (!data) return;
-        renderData.material = group.getMaterial();
+        renderData.material = group.sharedMaterials[0];
         if (!renderData ||
             !(renderData.uvDirty || renderData.vertDirty))
             return;

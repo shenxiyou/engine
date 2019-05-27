@@ -228,21 +228,11 @@ let TiledObjectGroup = cc.Class({
         return this.tileset.getImageByGid(gid);
     },
     _activateMaterial() {
-        // If render type is canvas, just return.
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            this.markForUpdateRenderData(true);
-            this.markForRender(true);
-            return;
-        }
-
-        let spriteFrame = this._spriteFrame;
-        // If spriteframe not loaded, disable render and return.
-        if (!spriteFrame || !spriteFrame.textureLoaded()) {
+        if (!this._texture) {
             this.disableRender();
             return;
         }
 
-        // make sure material is belong to self.
         let material = this.sharedMaterials[0];
         if (!material) {
             material = Material.getInstantiatedBuiltinMaterial('sprite', this);
@@ -252,20 +242,9 @@ let TiledObjectGroup = cc.Class({
             material = Material.getInstantiatedMaterial(material, this);
         }
 
-
+        material.setProperty('texture', this._texture);
         this.setMaterial(0, material);
         this.markForRender(true);
-
-        if (this._texture) {
-            material.setProperty('texture', this._texture);
-            material.updateHash();
-            this.markForUpdateRenderData(true);
-            this.markForRender(true);
-        }
-        else {
-            this.disableRender();
-        }
-
     }
 });
 
