@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
@@ -285,7 +285,6 @@ var AssetLibrary = {
         _libraryBase = cc.path.stripSep(libraryPath) + '/';
 
         _rawAssetsBase = options.rawAssetsBase;
-
         if (options.subpackages) {
             var subPackPipe = new SubPackPipe(options.subpackages);
             cc.loader.insertPipeAfter(cc.loader.assetLoader, subPackPipe);
@@ -360,6 +359,15 @@ var AssetLibrary = {
 
         // init cc.url
         cc.url._init((options.mountPaths && options.mountPaths.assets) || _rawAssetsBase + 'assets');
+        if (CC_EDITOR && !Editor.isMainProcess) {
+            if(!Editor.metas["custom-asset"])
+                Editor.metas["custom-asset"] = Editor.require("app://editor/share/assets/meta/custom-asset");
+            Editor.metas['spriter'] = Editor.require('unpack://engine/extensions/spriter/editor/spriter');
+            Editor.assets["spriter"] = cc.SpriterAsset;
+            Editor.metas['spriter']['asset-icon'] = 'unpack://engine/extensions/spriter/editor/spriter.png';
+            if(Editor.assettype2name) Editor.assettype2name['cc.SpriterAsset'] = 'spriter';
+        }
+        
     }
 
 };

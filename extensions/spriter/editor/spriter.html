@@ -1,0 +1,19 @@
+<link rel="import" href="packages://inspector/share/meta-header.html">
+
+<dom-module id="spriter-inspector">
+    <link rel="import" type="css" href="packages://inspector/share/common.css">
+
+    <template>
+        <inspector-meta-header
+            target="[[target]]"
+            icon="unpack://engine/extensions/spriter/editor/spriter.png"
+            dirty="{{dirty}}"
+        >
+        </inspector-meta-header>
+    </template>
+
+    <script>
+        Editor.registerElement({
+        });
+    </script>
+</dom-module>

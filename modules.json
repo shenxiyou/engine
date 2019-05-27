@@ -107,6 +107,12 @@
     "dependencies": ["WebGL Renderer"]
   },
   {
+    "name": "Spriter",
+    "entries": [
+      "./extensions/spriter/index.js"
+    ]
+  },
+  {
     "name": "RichText",
     "entries": [
       "./cocos2d/core/components/CCRichText.js"

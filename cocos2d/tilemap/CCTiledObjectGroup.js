@@ -23,6 +23,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+const RenderComponent = require('../core/components/CCRenderComponent');
+const renderEngine = require('../core/renderer/render-engine');
+ const SpriteMaterial = renderEngine.SpriteMaterial;
+
 /**
  * !#en Renders the TMX object group.
  * !#zh 渲染 tmx object group。
@@ -34,7 +38,7 @@ let TiledObjectGroup = cc.Class({
 
     // Inherits from the abstract class directly,
     // because TiledLayer not create or maintains the sgNode by itself.
-    extends: cc.Component,
+    extends: RenderComponent,
 
     /**
      * !#en Offset position of child objects.
@@ -115,10 +119,57 @@ let TiledObjectGroup = cc.Class({
     getObjects () {
         return this._objects;
     },
-
+    getTileSet(tilesets, gid) {
+        for (let i = tilesets.length - 1; i >= 0; i--) {
+            let t = tilesets[i];
+            if (gid > t.firstGid) {
+                return t;
+            }
+        }
+    },
+    createObject() {
+        let objectGroup = this;
+        let objects = objectGroup.getObjects();
+        let parent = objectGroup.node;
+        let group = parent.group;
+        let mapInfo = objectGroup._mapInfo;
+        let tilesets = mapInfo.getTilesets();
+        let i = 0;
+        for (; i < objects.length; i++) {
+            let obj = objects[i];
+            let go = parent.children[i];
+            if(!go) {
+                go = new cc.Node();
+                parent.addChild(go);
+            }
+            go.name = obj.id + "";
+            go.group = group;
+            let sp = go.getComponent(cc.Sprite);
+            if(!sp) sp = go.addComponent(cc.Sprite);
+            let tileset = this.getTileSet(tilesets, obj.gid);
+            let image = tileset.getImageByGid(obj.gid);
+            sp.spriteFrame = image;
+            
+            go.scale = 1;
+            go.width = obj.width;
+            go.height = obj.height;
+            let pos = this.positionForTileCoord(cc.v2(obj.x, obj.y));
+            go.position = pos.add(cc.v2(go.width / 2, go.height / 2));
+        }
+        for(;i < parent.childrenCount;i++) {
+            let go = parent.children[i];
+            go.removeFromParent();
+        }
+    },
+    positionForTileCoord(tileCoord) {
+        let mapSize = this.node.getContentSize();
+        let x = tileCoord.x - mapSize.width / 2;
+        let y = tileCoord.y - mapSize.height / 2;
+        return cc.v2(x, y);
+    },
     _init (groupInfo, mapInfo) {
         this._groupName = groupInfo.name;
-        this._positionOffset = groupInfo.offset;
+        this._positionOffset = cc.v2(groupInfo.offset.x,-groupInfo.offset.y);
         this._mapInfo = mapInfo;
         this._properties = groupInfo.getProperties();
 
@@ -162,6 +213,40 @@ let TiledObjectGroup = cc.Class({
 
         }
         this._objects = objects;
+        let tilesets = mapInfo.getTilesets();
+        let obj = objects[0];
+        if(obj) {
+            let tileset = this.getTileSet(tilesets, obj.gid);
+            let image = tileset.getImageByGid(obj.gid);
+            this._texture = image.getTexture();
+            this.tileset = tileset;
+        }
+        // this.createObject();
+        this._activateMaterial();
+    },
+    getFrame(gid) {
+        if(!this.tileset) return;
+        return this.tileset.getImageByGid(gid);
+    },
+    _activateMaterial () {
+        let material = this._material;
+        if (!material) {
+            material = this._material = new SpriteMaterial();
+            material.useColor = false;
+        }
+
+        if (this._texture) {
+            // TODO: old texture in material have been released by loader
+            material.texture = this._texture;
+            material.updateHash();
+            this.markForUpdateRenderData(true);
+            this.markForRender(true);
+        }
+        else {
+            this.disableRender();   
+        }
+        
+        this._updateMaterial(material);
     }
 });
 
