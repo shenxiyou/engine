@@ -188,5 +188,5 @@ if (CC_DEV) {
  * If you post a bug to forum, please attach this flag.
  * @property {String} ENGINE_VERSION
  */
-const engineVersion = '2.0.9';
+const engineVersion = '2.1.1';
 _global['CocosEngine'] = cc.ENGINE_VERSION = engineVersion;
