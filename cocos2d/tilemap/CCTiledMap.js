@@ -29,6 +29,7 @@ require('./CCTiledMapAsset');
 require('./CCTiledLayer');
 require('./CCTiledTile');
 require('./CCTiledObjectGroup');
+require('./CCTiledGroup');
 
 /**
  * !#en The orientation of tiled map.
@@ -168,14 +169,14 @@ let StaggerAxis = cc.Enum({
      * @type {Number}
      * @static
      */
-    STAGGERAXIS_X : 0,
+    STAGGERAXIS_X: 0,
 
     /**
      * @property STAGGERAXIS_Y
      * @type {Number}
      * @static
      */
-    STAGGERAXIS_Y : 1
+    STAGGERAXIS_Y: 1
 });
 
 /*
@@ -190,22 +191,22 @@ let StaggerIndex = cc.Enum({
      * @type {Number}
      * @static
      */
-    STAGGERINDEX_ODD : 0,
+    STAGGERINDEX_ODD: 0,
 
     /**
      * @property STAGGERINDEX_EVEN
      * @type {Number}
      * @static
      */
-    STAGGERINDEX_EVEN : 1
+    STAGGERINDEX_EVEN: 1
 });
 
 let TMXObjectType = cc.Enum({
-    RECT : 0,
-    ELLIPSE : 1,
-    POLYGON : 2,
-    POLYLINE : 3,
-    IMAGE : 4
+    RECT: 0,
+    ELLIPSE: 1,
+    POLYGON: 2,
+    POLYLINE: 3,
+    IMAGE: 4
 });
 
 /**
@@ -223,12 +224,13 @@ let TiledMap = cc.Class({
         menu: 'i18n:MAIN_MENU.component.renderers/TiledMap',
     },
 
-    ctor () {
+    ctor() {
         this._layers = [];
+        this._objectGroups = [];
         this._groups = [];
         this._properties = [];
         this._tileProperties = [];
-        
+
         this._mapSize = cc.size(0, 0);
         this._tileSize = cc.size(0, 0);
     },
@@ -253,11 +255,11 @@ let TiledMap = cc.Class({
          * @property {TiledMapAsset} tmxAsset
          * @default ""
          */
-        tmxAsset : {
-            get () {
+        tmxAsset: {
+            get() {
                 return this._tmxFile;
             },
-            set (value, force) {
+            set(value, force) {
                 if (this._tmxFile !== value || (CC_EDITOR && force)) {
                     this._tmxFile = value;
                     this._applyFile();
@@ -276,7 +278,7 @@ let TiledMap = cc.Class({
      * let mapSize = tiledMap.getMapSize();
      * cc.log("Map Size: " + mapSize);
      */
-    getMapSize () {
+    getMapSize() {
         return this._mapSize;
     },
 
@@ -289,7 +291,7 @@ let TiledMap = cc.Class({
      * let tileSize = tiledMap.getTileSize();
      * cc.log("Tile Size: " + tileSize);
      */
-    getTileSize () {
+    getTileSize() {
         return this._tileSize;
     },
 
@@ -302,7 +304,7 @@ let TiledMap = cc.Class({
      * let mapOrientation = tiledMap.getMapOrientation();
      * cc.log("Map Orientation: " + mapOrientation);
      */
-    getMapOrientation () {
+    getMapOrientation() {
         return this._mapOrientation;
     },
 
@@ -317,8 +319,8 @@ let TiledMap = cc.Class({
      *     cc.log("obj: " + objGroups[i]);
      * }
      */
-    getObjectGroups () {
-        return this._groups;
+    getObjectGroups() {
+        return this._objectGroups;
     },
 
     /**
@@ -331,7 +333,42 @@ let TiledMap = cc.Class({
      * let group = titledMap.getObjectGroup("Players");
      * cc.log("ObjectGroup: " + group);
      */
-    getObjectGroup (groupName) {
+    getObjectGroup(groupName) {
+        let groups = this._objectGroups;
+        for (let i = 0, l = groups.length; i < l; i++) {
+            let group = groups[i];
+            if (group && group.getGroupName() === groupName) {
+                return group;
+            }
+        }
+
+        return null;
+    },
+    /**
+     * !#en groups.
+     * !#zh 获取所有的分组。
+     * @method getGroups
+     * @return {TiledGroup[]}
+     * @example
+     * let groups = titledMap.getGroups();
+     * for (let i = 0; i < groups.length; ++i) {
+     *     cc.log("obj: " + groups[i]);
+     * }
+     */
+    getGroups() {
+        return this._groups;
+    },
+    /**
+     * !#en Return the TiledGroup for the specific group.
+     * !#zh 获取指定的 TiledGroup
+     * @method getGroup
+     * @param {String} getGroup
+     * @return {TiledGroup}
+     * @example
+     * let group = titledMap.getGroup("Players");
+     * cc.log("ObjectGroup: " + group);
+     */
+    getGroup(groupName) {
         let groups = this._groups;
         for (let i = 0, l = groups.length; i < l; i++) {
             let group = groups[i];
@@ -342,7 +379,6 @@ let TiledMap = cc.Class({
 
         return null;
     },
-
     /**
      * !#en Gets the map properties.
      * !#zh 获取地图的属性。
@@ -354,7 +390,7 @@ let TiledMap = cc.Class({
      *     cc.log("Properties: " + properties[i]);
      * }
      */
-    getProperties () {
+    getProperties() {
         return this._properties;
     },
 
@@ -369,7 +405,7 @@ let TiledMap = cc.Class({
      *     cc.log("Layers: " + layers[i]);
      * }
      */
-    getLayers () {
+    getLayers() {
         return this._layers;
     },
 
@@ -383,7 +419,7 @@ let TiledMap = cc.Class({
      * let layer = titledMap.getLayer("Player");
      * cc.log(layer);
      */
-    getLayer (layerName) {
+    getLayer(layerName) {
         let layers = this._layers;
         for (let i = 0, l = layers.length; i < l; i++) {
             let layer = layers[i];
@@ -405,7 +441,7 @@ let TiledMap = cc.Class({
      * let property = titledMap.getProperty("info");
      * cc.log("Property: " + property);
      */
-    getProperty (propertyName) {
+    getProperty(propertyName) {
         return this._properties[propertyName.toString()];
     },
 
@@ -419,26 +455,26 @@ let TiledMap = cc.Class({
      * let properties = titledMap.getPropertiesForGID(GID);
      * cc.log("Properties: " + properties);
      */
-    getPropertiesForGID (GID) {
+    getPropertiesForGID(GID) {
         return this._tileProperties[GID];
     },
 
-    __preload () {
+    __preload() {
         if (this._tmxFile) {
             // refresh layer entities
             this._applyFile();
         }
     },
 
-    onEnable () {
+    onEnable() {
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     },
 
-    onDisable () {
+    onDisable() {
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     },
 
-    _applyFile () {
+    _applyFile() {
         let file = this._tmxFile;
         if (file) {
             let texValues = file.textures;
@@ -464,17 +500,17 @@ let TiledMap = cc.Class({
 
             let mapInfo = new cc.TMXMapInfo(file.tmxXmlStr, tsxMap, textures, spriteFrames);
             let tilesets = mapInfo.getTilesets();
-            if(!tilesets || tilesets.length === 0)
+            if (!tilesets || tilesets.length === 0)
                 cc.logID(7241);
 
             this._buildWithMapInfo(mapInfo);
         }
         else {
-            this._relseasMapInfo()
+            this._relseasMapInfo();
         }
     },
 
-    _relseasMapInfo () {
+    _relseasMapInfo() {
         // remove the layers & object groups added before
         let layers = this._layers;
         for (let i = 0, l = layers.length; i < l; i++) {
@@ -482,21 +518,27 @@ let TiledMap = cc.Class({
         }
         layers.length = 0;
 
-        let groups = this._groups;
+        let groups = this._objectGroups;
         for (let i = 0, l = groups.length; i < l; i++) {
             groups[i].node.removeFromParent();
         }
         groups.length = 0;
+        let _groups = this._groups;
+        for (let i = 0, l = _groups.length; i < l; i++) {
+            _groups[i].node.removeFromParent();
+        }
+        _groups.length = 0;
+
     },
 
-    _syncAnchorPoint () {
+    _syncAnchorPoint() {
         let anchor = this.node.getAnchorPoint();
         for (let i = 0, l = this._layers.length; i < l; i++) {
             this._layers[i].node.setAnchorPoint(anchor);
         }
     },
-    
-    _buildWithMapInfo (mapInfo) {
+
+    _buildWithMapInfo(mapInfo) {
         this._mapSize = mapInfo.getMapSize();
         this._tileSize = mapInfo.getTileSize();
         this._mapOrientation = mapInfo.orientation;
@@ -506,57 +548,73 @@ let TiledMap = cc.Class({
         this._relseasMapInfo();
 
         let layers = this._layers;
+        let objectGroups = this._objectGroups;
         let groups = this._groups;
         let node = this.node;
         let layerInfos = mapInfo.getAllChildren();
         if (layerInfos && layerInfos.length > 0) {
             for (let i = 0, len = layerInfos.length; i < len; i++) {
                 let layerInfo = layerInfos[i];
-                let name = layerInfo.name;
-
-                let child = this.node.getChildByName(name);
-                if (!child) {
-                    child = new cc.Node();
-                    child.name = name;
-                    
-                    node.addChild(child);
-                }
-
-                if (layerInfo instanceof cc.TMXLayerInfo && layerInfo.visible) {
-                    let layer = child.getComponent(cc.TiledLayer);
-                    if (!layer) {
-                        layer = child.addComponent(cc.TiledLayer);
-                    }
-                    child.opacity = layerInfo._opacity;
-
-                    let tileset = this._tilesetForLayer(layerInfo, mapInfo);
-                    layer._init(tileset, layerInfo, mapInfo);
-
-                    // tell the layerinfo to release the ownership of the tiles map.
-                    layerInfo.ownTiles = false;
-
-                    // update content size with the max size
-                    this.node.width = Math.max(this.node.width, child.width);
-                    this.node.height = Math.max(this.node.height, child.height);
-
-                    layers.push(layer);
-                }
-                else if (layerInfo instanceof  cc.TMXObjectGroupInfo) {
-                    let group = child.getComponent(cc.TiledObjectGroup);
-                    if (!group) {
-                        group = child.addComponent(cc.TiledObjectGroup);
-                    }
-
-                    group._init(layerInfo, mapInfo);
-                    groups.push(group);
-                }
+                this.pareObject(layerInfo, layers, objectGroups, groups, node, mapInfo);
             }
         }
 
         this._syncAnchorPoint();
     },
+    pareObject(layerInfo, layers, objectGroups, groups, node, mapInfo) {
+        let name = layerInfo.name;
 
-    _tilesetForLayer (layerInfo, mapInfo) {
+        let child = node.getChildByName(name);
+        if (!child) {
+            child = new cc.Node();
+            child.name = name;
+
+            node.addChild(child);
+        }
+
+        if (layerInfo instanceof cc.TMXLayerInfo && layerInfo.visible) {
+            let layer = child.getComponent(cc.TiledLayer);
+            if (!layer) {
+                layer = child.addComponent(cc.TiledLayer);
+            }
+            child.opacity = layerInfo._opacity;
+
+            let tileset = this._tilesetForLayer(layerInfo, mapInfo);
+            layer._init(tileset, layerInfo, mapInfo);
+
+            // tell the layerinfo to release the ownership of the tiles map.
+            layerInfo.ownTiles = false;
+
+            // update content size with the max size
+            this.node.width = Math.max(this.node.width, child.width);
+            this.node.height = Math.max(this.node.height, child.height);
+
+            layers.push(layer);
+        }
+        else if (layerInfo instanceof cc.TMXObjectGroupInfo) {
+            let group = child.getComponent(cc.TiledObjectGroup);
+            if (!group) {
+                group = child.addComponent(cc.TiledObjectGroup);
+            }
+
+            group._init(layerInfo, mapInfo);
+            objectGroups.push(group);
+        } else if (layerInfo instanceof cc.TMXGroupInfo) {
+            let _objects = layerInfo._objects || [];
+            let group = child.getComponent(cc.TiledGroup);
+            if (!group) {
+                group = child.addComponent(cc.TiledGroup);
+            }
+
+            group._init(layerInfo, mapInfo);
+            groups.push(group);
+            for (let i = 0; i < _objects.length; i++) {
+                const obj = _objects[i];
+                this.pareObject(obj, layers, objectGroups, groups, child, mapInfo);
+            }
+        }
+    },
+    _tilesetForLayer(layerInfo, mapInfo) {
         let size = layerInfo._layerSize;
         let tilesets = mapInfo.getTilesets();
         if (tilesets) {
@@ -570,7 +628,7 @@ let TiledMap = cc.Class({
                             if (gid !== 0) {
                                 // Optimization: quick return
                                 // if the layer is invalid (more than 1 tileset per layer) an cc.assert will be thrown later
-                                if (((gid & cc.TiledMap.TileFlag.FLIPPED_MASK)>>>0) >= tileset.firstGid) {
+                                if (((gid & cc.TiledMap.TileFlag.FLIPPED_MASK) >>> 0) >= tileset.firstGid) {
                                     return tileset;
                                 }
                             }

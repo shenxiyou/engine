@@ -32,15 +32,15 @@ const zlib = require('../compression/zlib.min');
 const js = require('../core/platform/js');
 require('../core/platform/CCSAXParser');
 
-function uint8ArrayToUint32Array (uint8Arr) {
-    if(uint8Arr.length % 4 !== 0)
+function uint8ArrayToUint32Array(uint8Arr) {
+    if (uint8Arr.length % 4 !== 0)
         return null;
 
-    let arrLen = uint8Arr.length /4;
-    let retArr = window.Uint32Array? new Uint32Array(arrLen) : [];
-    for(let i = 0; i < arrLen; i++){
+    let arrLen = uint8Arr.length / 4;
+    let retArr = window.Uint32Array ? new Uint32Array(arrLen) : [];
+    for (let i = 0; i < arrLen; i++) {
         let offset = i * 4;
-        retArr[i] = uint8Arr[offset]  + uint8Arr[offset + 1] * (1 << 8) + uint8Arr[offset + 2] * (1 << 16) + uint8Arr[offset + 3] * (1<<24);
+        retArr[i] = uint8Arr[offset] + uint8Arr[offset + 1] * (1 << 8) + uint8Arr[offset + 2] * (1 << 16) + uint8Arr[offset + 3] * (1 << 24);
     }
     return retArr;
 }
@@ -69,7 +69,7 @@ cc.TMXLayerInfo = function () {
     this.ownTiles = true;
     this._minGID = 100000;
     this._maxGID = 0;
-    this.offset = cc.v2(0,0);
+    this.offset = cc.v2(0, 0);
 };
 
 cc.TMXLayerInfo.prototype = {
@@ -78,7 +78,7 @@ cc.TMXLayerInfo.prototype = {
      * Gets the Properties.
      * @return {Array}
      */
-    getProperties () {
+    getProperties() {
         return this.properties;
     },
 
@@ -86,7 +86,7 @@ cc.TMXLayerInfo.prototype = {
      * Set the Properties.
      * @param {object} value
      */
-    setProperties (value) {
+    setProperties(value) {
         this.properties = value;
     }
 };
@@ -110,7 +110,7 @@ cc.TMXObjectGroupInfo = function () {
     this.visible = true;
     this._opacity = 0;
     this._color = new cc.Color(255, 255, 255, 255);
-    this.offset = cc.v2(0,0);
+    this.offset = cc.v2(0, 0);
     this._draworder = 'topdown';
 };
 
@@ -120,7 +120,7 @@ cc.TMXObjectGroupInfo.prototype = {
      * Gets the Properties.
      * @return {Array}
      */
-    getProperties () {
+    getProperties() {
         return this.properties;
     },
 
@@ -128,10 +128,49 @@ cc.TMXObjectGroupInfo.prototype = {
      * Set the Properties.
      * @param {object} value
      */
-    setProperties (value) {
+    setProperties(value) {
         this.properties = value;
     }
 };
+/**
+ * <p>cc.TMXGroupInfo contains the information about the object group like: <br />
+ * - group name<br />
+ * - group size <br />
+ * - group opacity at creation time (it can be modified at runtime)  <br />
+ * - Whether the group is visible <br />
+ *  <br />
+ * This information is obtained from the TMX file.</p>
+ * @class TMXGroupInfo
+ *
+ * @property {Array}    properties  - Properties of the ObjectGroup info.
+ */
+cc.TMXGroupInfo = function () {
+    this.properties = {};
+    this.name = "";
+    this._objects = [];
+    this.visible = true;
+    this.offset = cc.v2(0, 0);
+};
+
+cc.TMXGroupInfo.prototype = {
+    constructor: cc.TMXGroupInfo,
+    /**
+     * Gets the Properties.
+     * @return {Array}
+     */
+    getProperties() {
+        return this.properties;
+    },
+
+    /**
+     * Set the Properties.
+     * @param {object} value
+     */
+    setProperties(value) {
+        this.properties = value;
+    }
+};
+
 
 /**
  * <p>cc.TMXTilesetInfo contains the information about the tilesets like: <br />
@@ -179,7 +218,7 @@ cc.TMXTilesetInfo.prototype = {
      * @param {Number} gid
      * @return {Rect}
      */
-    rectForGID (gid, result) {
+    rectForGID(gid, result) {
         let rect = result || cc.rect(0, 0, 0, 0);
         rect.width = this._tileSize.width;
         rect.height = this._tileSize.height;
@@ -202,7 +241,7 @@ cc.TMXTilesetInfo.prototype = {
     }
 };
 
-function getPropertyList (node, map) {
+function getPropertyList(node, map) {
     let res = [];
     let properties = node.getElementsByTagName("properties");
     for (let i = 0; i < properties.length; ++i) {
@@ -299,6 +338,7 @@ cc.TMXMapInfo = function (tmxFile, tsxMap, textures, spriteFrames) {
 
     this._parser = new cc.SAXParser();
     this._objectGroups = [];
+    this._groups = [];
     this._allChildren = [];
     this._mapSize = cc.size(0, 0);
     this._tileSize = cc.size(0, 0);
@@ -323,7 +363,7 @@ cc.TMXMapInfo.prototype = {
      * Gets Map orientation.
      * @return {Number}
      */
-    getOrientation () {
+    getOrientation() {
         return this.orientation;
     },
 
@@ -331,7 +371,7 @@ cc.TMXMapInfo.prototype = {
      * Set the Map orientation.
      * @param {Number} value
      */
-    setOrientation (value) {
+    setOrientation(value) {
         this.orientation = value;
     },
 
@@ -339,7 +379,7 @@ cc.TMXMapInfo.prototype = {
      * Gets the staggerAxis of map.
      * @return {cc.TiledMap.StaggerAxis}
      */
-    getStaggerAxis () {
+    getStaggerAxis() {
         return this._staggerAxis;
     },
 
@@ -347,7 +387,7 @@ cc.TMXMapInfo.prototype = {
      * Set the staggerAxis of map.
      * @param {cc.TiledMap.StaggerAxis} value
      */
-    setStaggerAxis (value) {
+    setStaggerAxis(value) {
         this._staggerAxis = value;
     },
 
@@ -355,7 +395,7 @@ cc.TMXMapInfo.prototype = {
      * Gets stagger index
      * @return {cc.TiledMap.StaggerIndex}
      */
-    getStaggerIndex () {
+    getStaggerIndex() {
         return this._staggerIndex;
     },
 
@@ -363,7 +403,7 @@ cc.TMXMapInfo.prototype = {
      * Set the stagger index.
      * @param {cc.TiledMap.StaggerIndex} value
      */
-    setStaggerIndex (value) {
+    setStaggerIndex(value) {
         this._staggerIndex = value;
     },
 
@@ -371,7 +411,7 @@ cc.TMXMapInfo.prototype = {
      * Gets Hex side length.
      * @return {Number}
      */
-    getHexSideLength () {
+    getHexSideLength() {
         return this._hexSideLength;
     },
 
@@ -379,7 +419,7 @@ cc.TMXMapInfo.prototype = {
      * Set the Hex side length.
      * @param {Number} value
      */
-    setHexSideLength (value) {
+    setHexSideLength(value) {
         this._hexSideLength = value;
     },
 
@@ -387,7 +427,7 @@ cc.TMXMapInfo.prototype = {
      * Map width & height
      * @return {Size}
      */
-    getMapSize () {
+    getMapSize() {
         return cc.size(this._mapSize.width, this._mapSize.height);
     },
 
@@ -395,21 +435,21 @@ cc.TMXMapInfo.prototype = {
      * Map width & height
      * @param {Size} value
      */
-    setMapSize (value) {
+    setMapSize(value) {
         this._mapSize.width = value.width;
         this._mapSize.height = value.height;
     },
 
-    _getMapWidth () {
+    _getMapWidth() {
         return this._mapSize.width;
     },
-    _setMapWidth (width) {
+    _setMapWidth(width) {
         this._mapSize.width = width;
     },
-    _getMapHeight () {
+    _getMapHeight() {
         return this._mapSize.height;
     },
-    _setMapHeight (height) {
+    _setMapHeight(height) {
         this._mapSize.height = height;
     },
 
@@ -417,7 +457,7 @@ cc.TMXMapInfo.prototype = {
      * Tiles width & height
      * @return {Size}
      */
-    getTileSize () {
+    getTileSize() {
         return cc.size(this._tileSize.width, this._tileSize.height);
     },
 
@@ -425,21 +465,21 @@ cc.TMXMapInfo.prototype = {
      * Tiles width & height
      * @param {Size} value
      */
-    setTileSize (value) {
+    setTileSize(value) {
         this._tileSize.width = value.width;
         this._tileSize.height = value.height;
     },
 
-    _getTileWidth () {
+    _getTileWidth() {
         return this._tileSize.width;
     },
-    _setTileWidth (width) {
+    _setTileWidth(width) {
         this._tileSize.width = width;
     },
-    _getTileHeight () {
+    _getTileHeight() {
         return this._tileSize.height;
     },
-    _setTileHeight (height) {
+    _setTileHeight(height) {
         this._tileSize.height = height;
     },
 
@@ -447,7 +487,7 @@ cc.TMXMapInfo.prototype = {
      * Layers
      * @return {Array}
      */
-    getLayers () {
+    getLayers() {
         return this._layers;
     },
 
@@ -455,7 +495,7 @@ cc.TMXMapInfo.prototype = {
      * Layers
      * @param {cc.TMXLayerInfo} value
      */
-    setLayers (value) {
+    setLayers(value) {
         this._allChildren.push(value);
         this._layers.push(value);
     },
@@ -464,7 +504,7 @@ cc.TMXMapInfo.prototype = {
      * tilesets
      * @return {Array}
      */
-    getTilesets () {
+    getTilesets() {
         return this._tilesets;
     },
 
@@ -472,7 +512,7 @@ cc.TMXMapInfo.prototype = {
      * tilesets
      * @param {cc.TMXTilesetInfo} value
      */
-    setTilesets (value) {
+    setTilesets(value) {
         this._tilesets.push(value);
     },
 
@@ -480,20 +520,26 @@ cc.TMXMapInfo.prototype = {
      * ObjectGroups
      * @return {Array}
      */
-    getObjectGroups () {
+    getObjectGroups() {
         return this._objectGroups;
     },
-
+    getGroups() {
+        return this._groups;
+    },
     /**
      * ObjectGroups
      * @param {cc.TMXObjectGroup} value
      */
-    setObjectGroups (value) {
+    setObjectGroups(value) {
         this._allChildren.push(value);
         this._objectGroups.push(value);
     },
+    setGroups(value) {
+        this._allChildren.push(value);
+        this._groups.push(value);
+    },
 
-    getAllChildren () {
+    getAllChildren() {
         return this._allChildren;
     },
 
@@ -501,7 +547,7 @@ cc.TMXMapInfo.prototype = {
      * parent element
      * @return {Object}
      */
-    getParentElement () {
+    getParentElement() {
         return this.parentElement;
     },
 
@@ -509,7 +555,7 @@ cc.TMXMapInfo.prototype = {
      * parent element
      * @param {Object} value
      */
-    setParentElement (value) {
+    setParentElement(value) {
         this.parentElement = value;
     },
 
@@ -517,7 +563,7 @@ cc.TMXMapInfo.prototype = {
      * parent GID
      * @return {Number}
      */
-    getParentGID () {
+    getParentGID() {
         return this.parentGID;
     },
 
@@ -525,7 +571,7 @@ cc.TMXMapInfo.prototype = {
      * parent GID
      * @param {Number} value
      */
-    setParentGID (value) {
+    setParentGID(value) {
         this.parentGID = value;
     },
 
@@ -533,7 +579,7 @@ cc.TMXMapInfo.prototype = {
      * Layer attribute
      * @return {Object}
      */
-    getLayerAttribs () {
+    getLayerAttribs() {
         return this.layerAttrs;
     },
 
@@ -541,7 +587,7 @@ cc.TMXMapInfo.prototype = {
      * Layer attribute
      * @param {Object} value
      */
-    setLayerAttribs (value) {
+    setLayerAttribs(value) {
         this.layerAttrs = value;
     },
 
@@ -549,7 +595,7 @@ cc.TMXMapInfo.prototype = {
      * Is reading storing characters stream
      * @return {Boolean}
      */
-    getStoringCharacters () {
+    getStoringCharacters() {
         return this.storingCharacters;
     },
 
@@ -557,7 +603,7 @@ cc.TMXMapInfo.prototype = {
      * Is reading storing characters stream
      * @param {Boolean} value
      */
-    setStoringCharacters (value) {
+    setStoringCharacters(value) {
         this.storingCharacters = value;
     },
 
@@ -565,7 +611,7 @@ cc.TMXMapInfo.prototype = {
      * Properties
      * @return {Array}
      */
-    getProperties () {
+    getProperties() {
         return this.properties;
     },
 
@@ -573,7 +619,7 @@ cc.TMXMapInfo.prototype = {
      * Properties
      * @param {object} value
      */
-    setProperties (value) {
+    setProperties(value) {
         this.properties = value;
     },
 
@@ -584,7 +630,7 @@ cc.TMXMapInfo.prototype = {
      * @param {Object} textures
      * @return {Boolean}
      */
-    initWithXML (tmxString, tsxMap, textures, spriteFrames) {
+    initWithXML(tmxString, tsxMap, textures, spriteFrames) {
         this._tilesets.length = 0;
         this._layers.length = 0;
 
@@ -592,6 +638,7 @@ cc.TMXMapInfo.prototype = {
         this._textures = textures;
         this._spriteFrames = spriteFrames;
         this._objectGroups.length = 0;
+        this._groups.length = 0;
         this._allChildren.length = 0;
         this.properties.length = 0;
         this._tileProperties.length = 0;
@@ -611,7 +658,7 @@ cc.TMXMapInfo.prototype = {
      * @param {Number} tilesetFirstGid
      * @return {Element}
      */
-    parseXMLString (xmlStr, tilesetFirstGid) {
+    parseXMLString(xmlStr, tilesetFirstGid) {
         let mapXML = this._parser._parseXML(xmlStr);
         let i, j;
 
@@ -707,7 +754,7 @@ cc.TMXMapInfo.prototype = {
                 let image = images[0];
                 let imagename = image.getAttribute('source');
                 imagename.replace(/\\/g, '\/');
-                if(this._textures[imagename]) {
+                if (this._textures[imagename]) {
                     tileset.sourceImage = this._textures[imagename];
                     if (!tileset.sourceImage) {
                         cc.errorID(7221, imagename);
@@ -731,8 +778,8 @@ cc.TMXMapInfo.prototype = {
                         let t = tiles[tIdx];
                         this.parentGID = parseInt(tileset.firstGid) + parseInt(t.getAttribute('id') || 0);
                         let images = t.getElementsByTagName("image");
-                        if(images && images.length > 0) {
-                            for(let i = 0;i < images.length;i++) {
+                        if (images && images.length > 0) {
+                            for (let i = 0; i < images.length; i++) {
                                 let img = images[i];
                                 let n = img.getAttribute('source');
                                 n.replace(/\\/g, '\/');
@@ -763,18 +810,22 @@ cc.TMXMapInfo.prototype = {
                 let objectGroup = this._parseObjectGroup(childNode);
                 this.setObjectGroups(objectGroup);
             }
+            if (childNode.nodeName == "group") {
+                let group = this._parseGroup(childNode);
+                this.setGroups(group);
+            }
         }
 
         return map;
     },
 
-    _shouldIgnoreNode (node) {
+    _shouldIgnoreNode(node) {
         return node.nodeType === 3 // text
             || node.nodeType === 8   // comment
             || node.nodeType === 4;  // cdata
     },
 
-    _parseLayer (selLayer) {
+    _parseLayer(selLayer) {
         let data = selLayer.getElementsByTagName('data')[0];
 
         let layer = new cc.TMXLayerInfo();
@@ -849,8 +900,34 @@ cc.TMXMapInfo.prototype = {
 
         return layer;
     },
-
-    _parseObjectGroup (selGroup) {
+    _parseGroup(selGroup) {
+        let objectGroup = new cc.TMXGroupInfo();
+        objectGroup.name = selGroup.getAttribute('name') || '';
+        objectGroup.offset = cc.v2(parseFloat(selGroup.getAttribute('offsetx')), parseFloat(selGroup.getAttribute('offsety')));
+        let visible = selGroup.getAttribute('visible');
+        if (visible && parseInt(visible) === 0)
+            objectGroup.visible = false;
+        // set the properties to the group
+        objectGroup.setProperties(getPropertyList(selGroup));
+        let objects = selGroup.getElementsByTagName('objectgroup');
+        if (objects) {
+            for (let i = 0; i < objects.length; i++) {
+                const child = objects[i];
+                let obj = this._parseObjectGroup(child);
+                objectGroup._objects.push(obj);
+            }
+        }
+        let layers = selGroup.getElementsByTagName('layer');
+        if (layers) {
+            for (let i = 0; i < layers.length; i++) {
+                const layer = layers[i];
+                let obj = this._parseLayer(layer);
+                objectGroup._objects.push(obj);
+            }
+        }
+        return objectGroup;
+    },
+    _parseObjectGroup(selGroup) {
         let objectGroup = new cc.TMXObjectGroupInfo();
         objectGroup.name = selGroup.getAttribute('name') || '';
         objectGroup.offset = cc.v2(parseFloat(selGroup.getAttribute('offsetx')), parseFloat(selGroup.getAttribute('offsety')));
@@ -947,7 +1024,7 @@ cc.TMXMapInfo.prototype = {
         return objectGroup;
     },
 
-    _parsePointsString (pointsString) {
+    _parsePointsString(pointsString) {
         if (!pointsString)
             return null;
 
@@ -955,7 +1032,7 @@ cc.TMXMapInfo.prototype = {
         let pointsStr = pointsString.split(' ');
         for (let i = 0; i < pointsStr.length; i++) {
             let selPointStr = pointsStr[i].split(',');
-            points.push({'x': parseFloat(selPointStr[0]), 'y': parseFloat(selPointStr[1])});
+            points.push({ 'x': parseFloat(selPointStr[0]), 'y': parseFloat(selPointStr[1]) });
         }
         return points;
     },
@@ -964,7 +1041,7 @@ cc.TMXMapInfo.prototype = {
      * Gets the tile properties.
      * @return {object}
      */
-    getTileProperties () {
+    getTileProperties() {
         return this._tileProperties;
     },
 
@@ -972,7 +1049,7 @@ cc.TMXMapInfo.prototype = {
      * Set the tile properties.
      * @param {object} tileProperties
      */
-    setTileProperties (tileProperties) {
+    setTileProperties(tileProperties) {
         this._tileProperties.push(tileProperties);
     },
 
@@ -980,7 +1057,7 @@ cc.TMXMapInfo.prototype = {
      * Gets the currentString
      * @return {String}
      */
-    getCurrentString () {
+    getCurrentString() {
         return this.currentString;
     },
 
@@ -988,7 +1065,7 @@ cc.TMXMapInfo.prototype = {
      * Set the currentString
      * @param {String} currentString
      */
-    setCurrentString (currentString) {
+    setCurrentString(currentString) {
         this.currentString = currentString;
     }
 };

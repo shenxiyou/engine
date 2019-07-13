@@ -17,22 +17,11 @@ let AnimationCache = cc.Class({
         let _isCompleted = false;
         let _currentAnimationTime = -1;
         var anim = pose.curAnim();
-        var mainline_keyframe_array = anim.mainline.keyframe_array;
         do {
             pose.strike();
             let newTime = pose.getTime();
 
             if (newTime > _currentAnimationTime) {
-                // var mainline_keyframe_index1 = spriter.Keyframe.find(mainline_keyframe_array, newTime);
-                // var mainline_keyframe_index2 = (mainline_keyframe_index1 + 1) % mainline_keyframe_array.length;
-                // if (mainline_keyframe_index2 > mainline_keyframe_index1) {
-                //     _currentAnimationTime = newTime;
-                //     this._updateFrame(pose, frameIdx);
-                //     frameIdx++;
-                //     pose.update(_frameTime);
-                // } else {
-                //     _isCompleted = true;
-                // }
                 _currentAnimationTime = newTime;
                 this._updateFrame(pose, frameIdx);
                 frameIdx++;
@@ -41,10 +30,10 @@ let AnimationCache = cc.Class({
                 _isCompleted = true;
             }
         } while (!_isCompleted);
-        pose.setTime(mainline_keyframe_array[mainline_keyframe_array.length - 1].time - 1);
+        pose.setTime(anim.length - 1);
         pose.strike();
         this._updateFrame(pose, frameIdx);
-        this.totalTime = mainline_keyframe_array[mainline_keyframe_array.length - 1].time / 1000;
+        this.totalTime = anim.length / 1000;
     },
     _updateFrame(pose, frameIdx) {
         let list = [];

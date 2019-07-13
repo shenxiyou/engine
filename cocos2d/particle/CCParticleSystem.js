@@ -1198,10 +1198,10 @@ var ParticleSystem = cc.Class({
             }
         } else if (this.emitterMode === EmitterMode.RADIUS) {
             // or Mode B: radius movement
-            this.startRadius = parseFloat(dict["maxRadius"] || 0);
-            this.startRadiusVar = parseFloat(dict["maxRadiusVariance"] || 0);
-            this.endRadius = parseFloat(dict["minRadius"] || 0);
-            this.endRadiusVar = parseFloat(dict["minRadiusVariance"] || 0);
+            this.startRadius = parseFloat(dict["minRadius"] || 0);
+            this.startRadiusVar = parseFloat(dict["minRadiusVariance"] || 0);
+            this.endRadius = parseFloat(dict["maxRadius"] || 0);
+            this.endRadiusVar = parseFloat(dict["maxRadiusVariance"] || 0);
             this.rotatePerS = parseFloat(dict["rotatePerSecond"] || 0);
             this.rotatePerSVar = parseFloat(dict["rotatePerSecondVariance"] || 0);
         } else {

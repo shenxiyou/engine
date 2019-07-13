@@ -69,6 +69,7 @@
     "./cocos2d/tilemap/CCTiledMap.js",
     "./cocos2d/tilemap/CCTiledLayer.js",
     "./cocos2d/tilemap/CCTiledObjectGroup.js",
+    "./cocos2d/tilemap/CCTiledGroup.js",
     "./cocos2d/tilemap/CCTiledMapAsset.js",
     "./cocos2d/tilemap/CCTiledTile.js",
 
