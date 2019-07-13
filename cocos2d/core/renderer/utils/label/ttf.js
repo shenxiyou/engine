@@ -33,6 +33,7 @@ const Overflow = Label.Overflow;
 
 const WHITE = cc.Color.WHITE;
 const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, Component);
+const MAX_SIZE = 2048;
 
 let _context = null;
 let _canvas = null;
@@ -168,8 +169,6 @@ module.exports = {
             _isOutlined = true;
             _margin = _outlineWidth = outline.width;
             _outlineColor = cc.color(outline.color);
-            // TODO: temporary solution, cascade opacity for outline color
-            _outlineColor.a = _outlineColor.a * comp.node.color.a / 255.0;
         }
         else {
             _isOutlined = false;
@@ -300,6 +299,9 @@ module.exports = {
                 //0.0174532925 = 3.141592653 / 180
                 _canvasSize.width += _drawFontsize * Math.tan(12 * 0.0174532925);
             }
+
+            _canvasSize.width = Math.min(_canvasSize.width, MAX_SIZE);
+            _canvasSize.height = Math.min(_canvasSize.height, MAX_SIZE);
         }
         
         if (_canvas.width !== _canvasSize.width || CC_QQPLAY) {

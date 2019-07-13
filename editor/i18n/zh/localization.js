@@ -26,7 +26,8 @@ module.exports = {
             "toggleContainer": "https://docs.cocos.com/creator/manual/zh/components/toggleContainer.html",
             "slider": "https://docs.cocos.com/creator/manual/zh/components/slider.html",
             "block_input_events": "https://docs.cocos.com/creator/manual/zh/components/block-input-events.html",
-            "wx_subcontext_view": "https://docs.cocos.com/creator/manual/zh/publish/publish-wechatgame-sub-domain.html"
+            "wx_subcontext_view": "https://docs.cocos.com/creator/manual/zh/publish/publish-wechatgame-sub-domain.html",
+            "swan_subcontext_view": "https://docs.cocos.com/creator/manual/zh/publish/publish-baidugame-sub-domain.html"
         },
         'animation': {
             'default_clip': '在勾选自动播放或调用 play() 时默认播放的动画 clip。',
@@ -100,7 +101,9 @@ module.exports = {
             'wrap': '是否允许自动换行',
             'font': 'Label 使用的字体资源',
             'system_font': '是否使用系统默认字体，选中此项会将 file 属性置空',
-            'cacheMode': '文本缓存模式，包括以下三种：\n 1. NONE : 不做任何缓存，文本内容进行一次绘制 \n 2. BITMAP: 将文本作为静态图像加入动态图集进行批次合并，但是不能频繁动态修改文本内容 \n 3. CHAR: 将文本拆分为字符并且把字符纹理缓存到一张字符图集中进行复用，适用于字符内容重复并且频繁更新的文本内容'
+            'cacheMode': '文本缓存模式，包括以下三种：\n 1. NONE : 不做任何缓存，文本内容进行一次绘制 \n 2. BITMAP: 将文本作为静态图像加入动态图集进行批次合并，但是不能频繁动态修改文本内容 \n 3. CHAR: 将文本拆分为字符并且把字符纹理缓存到一张字符图集中进行复用，适用于字符内容重复并且频繁更新的文本内容',
+            'actualFontSize': 'SHRINK 模式下面文本实际渲染的字体大小',
+            'spacingX': '文字之间 x 轴的间距',
         },
         'progress': {
             'bar_sprite': '进度条显示用的 Sprite 节点，可以动态改变尺寸',
@@ -392,13 +395,19 @@ module.exports = {
             }
         },
         'block_input_events': {
-            'brief_help': '该组件将拦截所有输入事件，防止输入穿透到下层节点，一般用于上层 UI 的背景。'
+            'brief_help': '该组件将拦截所有输入事件，防止输入穿透到屏幕下方的其它节点，一般用于屏幕上层 UI 的背景。'
         },
         'tiledtile': {
             'row': '指定 TiledTile 的横向坐标，以地图块为单位',
             'column': '指定 TiledTile 的纵向坐标，以地图块为单位',
             'gid': '指定 TiledTile 的 gid 值',
             'layer': '指定 TiledTile 属于哪一个 TiledLayer'
+        },
+        'wx_subcontext_view': {
+            'fps': '开放数据域的 FPS, 该属性会覆盖开放域的帧率设置'
+        },
+        'swan_subcontext_view': {
+            'fps': '开放数据域的 FPS, 该属性会覆盖开放域的帧率设置'
         }
     }
 };

@@ -73,15 +73,15 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
         this._dragonBones.advanceTime(dt);
     },
 
+    getDragonBonesDataByRawData (rawData) {
+        var dataParser = rawData instanceof ArrayBuffer ? BaseFactory._binaryParser : this._dataParser;
+        return dataParser.parseDragonBonesData(rawData, 1.0);
+    },
+
     // Build new aramture with a new display.
     buildArmatureDisplay (armatureName, dragonBonesName, skinName, textureAtlasName) {
         let armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
         return armature && armature._display;
-    },
-
-    parseTextureAtlasData (jsonString, texture, atlasUUID) {
-        var atlasJsonObj = JSON.parse(jsonString);
-        return this._super(atlasJsonObj, texture, atlasUUID);
     },
 
     // Build sub armature from an exist armature component.
@@ -159,7 +159,6 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
 
     _buildSlot (dataPackage, slotData, displays) {
         let slot = BaseObject.borrowObject(dragonBones.CCSlot);
-        slot.name = slotData.name;
         let display = slot;
         slot.init(slotData, displays, display, display);
         return slot;

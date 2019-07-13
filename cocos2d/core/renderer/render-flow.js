@@ -119,6 +119,7 @@ _proto._children = function (node) {
     let children = node._children;
     for (let i = 0, l = children.length; i < l; i++) {
         let c = children[i];
+
         // Advance the modification of the flag to avoid node attribute modification is invalid when opacity === 0.
         c._renderFlag |= worldDirtyFlag;
         if (!c._activeInHierarchy || c._opacity === 0) continue;

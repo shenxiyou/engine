@@ -9366,7 +9366,7 @@ function _commitVertexBuffers(device, gl, cur, next) {
     for (var i$2 = 0; i$2 < next.maxStream + 1; ++i$2) {
       var vb = next.vertexBuffers[i$2];
       var vbOffset = next.vertexBufferOffsets[i$2];
-      if (!vb) {
+      if (!vb || vb._glID === -1) {
         continue;
       }
 
@@ -10164,7 +10164,7 @@ Device.prototype.draw = function draw (base, count) {
 
   // commit index-buffer
   if (cur.indexBuffer !== next.indexBuffer) {
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, next.indexBuffer ? next.indexBuffer._glID : null);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, next.indexBuffer && next.indexBuffer._glID !== -1 ? next.indexBuffer._glID : null);
   }
 
   // commit program
@@ -11070,6 +11070,9 @@ var Camera = function Camera() {
 
   //
   this._projection = enums.PROJ_PERSPECTIVE;
+
+  // priority. the smaller one will be rendered first
+  this._priority = 0;
 
   // clear options
   this._color = color4.new(0.2, 0.3, 0.47, 1);
@@ -13664,8 +13667,8 @@ var ForwardRenderer = (function (superclass) {
     this._reset();
 
     scene._cameras.sort(function (a, b) {
-      if (a._depth > b._depth) { return 1; }
-      else if (a._depth < b._depth) { return -1; }
+      if (a._priority > b._priority) { return 1; }
+      else if (a._priority < b._priority) { return -1; }
       else { return 0; }
     });
 

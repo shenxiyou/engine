@@ -67,15 +67,37 @@ else {
             help: 'i18n:COMPONENT.help_url.wx_subcontext_view'
         },
 
+        properties: {
+            _fps: 60,
+
+            fps: {
+                get () {
+                    return this._fps;
+                },
+                set (value) {
+                    if (this._fps === value) {
+                        return;
+                    }
+                    this._fps = value;
+                    this._updateInterval = 1 / value;
+                    this._updateSubContextFrameRate();
+                },
+                tooltip: CC_DEV && 'i18n:COMPONENT.wx_subcontext_view.fps'
+            }
+        },
+
         ctor () {
             this._sprite = null;
             this._tex = new cc.Texture2D();
             this._context = null;
+            this._previousUpdateTime = performance.now();
+            this._updateInterval = 0;
         },
 
         onLoad () {
             // Setup subcontext canvas size
             if (wx.getOpenDataContext) {
+                this._updateInterval = 1000 / this._fps;
                 this._context = wx.getOpenDataContext();
                 // reset sharedCanvas width and height
                 this.reset();
@@ -112,13 +134,25 @@ else {
         },
 
         onEnable () {
+            this._runSubContextMainLoop();
+            this._registerNodeEvent();
+            this._updateSubContextFrameRate();
             this.updateSubContextViewport();
         },
 
+        onDisable () {
+            this._unregisterNodeEvent();
+            this._stopSubContextMainLoop();
+        },
+
         update () {
-            if (!this._tex || !this._context) {
+            let now = performance.now();
+            let deltaTime = (now - this._previousUpdateTime);
+            if (!this._tex || !this._context || deltaTime < this._updateInterval) {
                 return;
             }
+            this._previousUpdateTime = now;
+            this._deltaTime = 0;
             this._tex.initWithElement(this._context.canvas);
             this._sprite._activateMaterial();
         },
@@ -142,7 +176,49 @@ else {
                     height: box.height * sy
                 });
             }
-        }
+        },
+
+        _registerNodeEvent () {
+            this.node.on('position-changed', this.updateSubContextViewport, this);
+            this.node.on('scale-changed', this.updateSubContextViewport, this);
+            this.node.on('size-changed', this.updateSubContextViewport, this);
+        },
+
+        _unregisterNodeEvent () {
+            this.node.off('position-changed', this.updateSubContextViewport, this);
+            this.node.off('scale-changed', this.updateSubContextViewport, this);
+            this.node.off('size-changed', this.updateSubContextViewport, this);
+        },
+
+        _runSubContextMainLoop () {
+            if (this._context) {
+                this._context.postMessage({
+                    fromEngine: true,
+                    event: 'mainLoop',
+                    value: true,
+                });
+            }
+        },
+
+        _stopSubContextMainLoop () {
+            if (this._context) {
+                this._context.postMessage({
+                    fromEngine: true,
+                    event: 'mainLoop',
+                    value: false,
+                });
+            }
+        },
+
+        _updateSubContextFrameRate () {
+            if (this._context) {
+                this._context.postMessage({
+                    fromEngine: true,
+                    event: 'frameRate',
+                    value: this._fps,
+                });
+            }
+        },
     });
 
 }

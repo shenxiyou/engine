@@ -26,7 +26,8 @@ module.exports = {
             "toggleContainer": "https://docs.cocos.com/creator/manual/en/components/toggleContainer.html",
             "slider": "https://docs.cocos.com/creator/manual/en/components/slider.html",
             "block_input_events": "https://docs.cocos.com/creator/manual/en/components/block-input-events.html",
-            "wx_subcontext_view": "https://docs.cocos.com/creator/manual/en/publish/publish-wechatgame-sub-domain.html"
+            "wx_subcontext_view": "https://docs.cocos.com/creator/manual/en/publish/publish-wechatgame-sub-domain.html",
+            "swan_subcontext_view": "https://docs.cocos.com/creator/manual/en/publish/publish-baidugame-sub-domain.html"
         },
         "animation": {
             "default_clip": "When checking, the deault animation clip is automatically played.",
@@ -97,7 +98,9 @@ module.exports = {
             "wrap": "Wrap text?",
             "font": "What font to use",
             "system_font": "Whether to use the system default font",
-            'cacheMode': 'The text cache mode includes the following three types: \n 1. NONE : Do not do any caching, text content is drawn once. \n 2. BITMAP: Add text as a static image to the dynamic atlas for batch merging, but not frequently dynamically Text content \n 3. CHAR: Splits text into characters and caches characters into character atlas, suitable for text content with repeated and frequently updated character content'
+            'cacheMode': 'The text cache mode includes the following three types: \n 1. NONE : Do not do any caching, text content is drawn once. \n 2. BITMAP: Add text as a static image to the dynamic atlas for batch merging, but not frequently dynamically Text content \n 3. CHAR: Splits text into characters and caches characters into character atlas, suitable for text content with repeated and frequently updated character content',
+            'actualFontSize': 'The actual rendering font size in shrink mode',
+            'spacingX': 'The spacing of the x axis between characters',
         },
         "progress": {
             "bar_sprite": "A progress bar is displayed with the Sprite node that can dynamically change the size",
@@ -388,13 +391,19 @@ module.exports = {
             }
         },
         'block_input_events': {
-            'brief_help': 'This component will block all input events, preventing the input from penetrating into the underlying node, typically for the background of the top UI.'
+            'brief_help': 'This component will block all input events, preventing the input from penetrating to other nodes below the screen, typically for the background of the top-level UI of the screen.'
         },
         'tiledtile': {
             'row': 'Specify the TiledTile horizontal coordinate，use map tile as the unit.',
             'column': 'Specify the TiledTile vertical coordinate，use map tile as the unit.',
             'gid': 'Specify the TiledTile gid.',
             'layer': 'Specify which TiledLayer the TiledTile belong to.'
+        },
+        'wx_subcontext_view': {
+            'interval': 'The FPS of open data context, this property will overwrite the frame rate setting in open data context'
+        },
+        'swan_subcontext_view': {
+            'interval': 'The FPS of open data context, this property will overwrite the frame rate setting in open data context'
         }
     }
 };

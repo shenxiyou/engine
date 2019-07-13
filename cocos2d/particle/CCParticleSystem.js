@@ -34,8 +34,6 @@ const textureUtil = require('../core/utils/texture-util');
 const renderEngine = require('../core/renderer/render-engine');
 const RenderFlow = require('../core/renderer/render-flow');
 const ParticleSimulator = require('./particle-simulator');
-const gfx = renderEngine.gfx;
-const BlendFactor = macro.BlendFactor;
 
 function getImageFormatByData (imgData) {
     // if it is a png file buffer.
@@ -274,53 +272,6 @@ var properties = {
         readonly: true,
         visible: false,
         animatable: false
-    },
-
-    _srcBlendFactor: BlendFactor.SRC_ALPHA,
-    _dstBlendFactor: BlendFactor.ONE_MINUS_SRC_ALPHA,
-
-      /**
-     * !#en specify the source Blend Factor, this will generate a custom material object, please pay attention to the memory cost.
-     * !#zh 指定原图的混合模式，这会克隆一个新的材质对象，注意这带来的开销
-     * @property srcBlendFactor
-     * @type {macro.BlendFactor}
-     * @example
-     * sprite.srcBlendFactor = cc.macro.BlendFactor.ONE;
-     */
-    srcBlendFactor: {
-        get: function() {
-            return this._srcBlendFactor;
-        },
-        set: function(value) {
-            if (this._srcBlendFactor === value) return;
-            this._srcBlendFactor = value;
-            this._updateBlendFunc(true);
-        },
-        animatable: false,
-        type:BlendFactor,
-        tooltip: CC_DEV && 'i18n:COMPONENT.sprite.src_blend_factor'
-    },
-
-    /**
-     * !#en specify the destination Blend Factor.
-     * !#zh 指定目标的混合模式
-     * @property dstBlendFactor
-     * @type {macro.BlendFactor}
-     * @example
-     * sprite.dstBlendFactor = cc.macro.BlendFactor.ONE;
-     */
-    dstBlendFactor: {
-        get: function() {
-            return this._dstBlendFactor;
-        },
-        set: function(value) {
-            if (this._dstBlendFactor === value) return;
-            this._dstBlendFactor = value;
-            this._updateBlendFunc(true);
-        },
-        animatable: false,
-        type: BlendFactor,
-        tooltip: CC_DEV && 'i18n:COMPONENT.sprite.dst_blend_factor'
     },
 
     /**
@@ -759,6 +710,7 @@ var properties = {
 var ParticleSystem = cc.Class({
     name: 'cc.ParticleSystem',
     extends: RenderComponent,
+    mixins: [RenderComponent.BlendFactorPolyfill],
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/ParticleSystem',
         inspector: 'packages://inspector/inspectors/comps/particle-system.js',
@@ -886,9 +838,12 @@ var ParticleSystem = cc.Class({
             this._convertTextureToSpriteFrame();
         }
 
-        if (this._file) { 
-            if (this._custom) { 
-                var missCustomTexture = !this._texture; 
+        if (this._custom && this.spriteFrame && !this._renderSpriteFrame) {
+            this._applySpriteFrame(this.spriteFrame);
+        }
+        else if (this._file) {
+            if (this._custom) {
+                let missCustomTexture = !this._texture;
                 if (missCustomTexture) { 
                     this._applyFile();
                 }
@@ -896,9 +851,6 @@ var ParticleSystem = cc.Class({
             else {
                 this._applyFile();
             }
-        }
-        else if (this._custom && this.spriteFrame && !this._renderSpriteFrame) {
-            this._applySpriteFrame(this.spriteFrame);
         }
         // auto play
         if (!CC_EDITOR || cc.engine.isPlaying) {
@@ -915,12 +867,6 @@ var ParticleSystem = cc.Class({
         }
     },
 
-    onLoad () {
-        if (!this._ia) {
-            ParticleSystem._assembler.createIA(this);
-        }
-    },
-
     onEnable () {
         this._super();
         this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
@@ -931,6 +877,13 @@ var ParticleSystem = cc.Class({
         if (this.autoRemoveOnFinish) {
             this.autoRemoveOnFinish = false;    // already removed
         }
+        if (this._buffer) {
+            this._buffer.destroy();
+            this._buffer = null;
+        }
+        this._ia = null;
+        // reset uv data so next time simulator will refill buffer uv info when exit edit mode from prefab.
+        this._simulator._uvFilled = 0;
         this._super();
     },
     
@@ -1008,9 +961,9 @@ var ParticleSystem = cc.Class({
     // PRIVATE METHODS
 
     _applyFile: function () {
-        var file = this._file;
+        let file = this._file;
         if (file) {
-            var self = this;
+            let self = this;
             cc.loader.load(file.nativeUrl, function (err, content) {
                 if (err || !content) {
                     cc.errorID(6029);
@@ -1041,7 +994,7 @@ var ParticleSystem = cc.Class({
     },
 
     _initTextureWithDictionary: function (dict) {
-        var imgPath = cc.path.changeBasename(this._plistFile, dict["textureFileName"] || '');
+        let imgPath = cc.path.changeBasename(this._plistFile, dict["textureFileName"] || '');
         // texture
         if (dict["textureFileName"]) {
             // Try to get the texture from the cache
@@ -1055,27 +1008,27 @@ var ParticleSystem = cc.Class({
                 }
             }, this);
         } else if (dict["textureImageData"]) {
-            var textureData = dict["textureImageData"];
+            let textureData = dict["textureImageData"];
 
             if (textureData && textureData.length > 0) {
                 let tex = cc.loader.getRes(imgPath);
                 
                 if (!tex) {
-                    var buffer = codec.unzipBase64AsArray(textureData, 1);
+                    let buffer = codec.unzipBase64AsArray(textureData, 1);
                     if (!buffer) {
                         cc.logID(6030);
                         return false;
                     }
 
-                    var imageFormat = getImageFormatByData(buffer);
+                    let imageFormat = getImageFormatByData(buffer);
                     if (imageFormat !== macro.ImageFormat.TIFF && imageFormat !== macro.ImageFormat.PNG) {
                         cc.logID(6031);
                         return false;
                     }
 
-                    var canvasObj = document.createElement("canvas");
+                    let canvasObj = document.createElement("canvas");
                     if(imageFormat === macro.ImageFormat.PNG){
-                        var myPngObj = new PNGReader(buffer);
+                        let myPngObj = new PNGReader(buffer);
                         myPngObj.render(canvasObj);
                     } else {
                         tiffReader.parseTIFF(buffer,canvasObj);
@@ -1104,7 +1057,7 @@ var ParticleSystem = cc.Class({
         this.lifeVar = parseFloat(dict["particleLifespanVariance"] || 0);
 
         // emission Rate
-        var _tempEmissionRate = dict["emissionRate"];
+        let _tempEmissionRate = dict["emissionRate"];
         if (_tempEmissionRate) {
             this.emissionRate = _tempEmissionRate;
         }
@@ -1120,25 +1073,25 @@ var ParticleSystem = cc.Class({
         this.dstBlendFactor = parseInt(dict["blendFuncDestination"] || macro.ONE_MINUS_SRC_ALPHA);
 
         // color
-        var locStartColor = this._startColor;
+        let locStartColor = this._startColor;
         locStartColor.r = parseFloat(dict["startColorRed"] || 0) * 255;
         locStartColor.g = parseFloat(dict["startColorGreen"] || 0) * 255;
         locStartColor.b = parseFloat(dict["startColorBlue"] || 0) * 255;
         locStartColor.a = parseFloat(dict["startColorAlpha"] || 0) * 255;
 
-        var locStartColorVar = this._startColorVar;
+        let locStartColorVar = this._startColorVar;
         locStartColorVar.r = parseFloat(dict["startColorVarianceRed"] || 0) * 255;
         locStartColorVar.g = parseFloat(dict["startColorVarianceGreen"] || 0) * 255;
         locStartColorVar.b = parseFloat(dict["startColorVarianceBlue"] || 0) * 255;
         locStartColorVar.a = parseFloat(dict["startColorVarianceAlpha"] || 0) * 255;
 
-        var locEndColor = this._endColor;
+        let locEndColor = this._endColor;
         locEndColor.r = parseFloat(dict["finishColorRed"] || 0) * 255;
         locEndColor.g = parseFloat(dict["finishColorGreen"] || 0) * 255;
         locEndColor.b = parseFloat(dict["finishColorBlue"] || 0) * 255;
         locEndColor.a = parseFloat(dict["finishColorAlpha"] || 0) * 255;
 
-        var locEndColorVar = this._endColorVar;
+        let locEndColorVar = this._endColorVar;
         locEndColorVar.r = parseFloat(dict["finishColorVarianceRed"] || 0) * 255;
         locEndColorVar.g = parseFloat(dict["finishColorVarianceGreen"] || 0) * 255;
         locEndColorVar.b = parseFloat(dict["finishColorVarianceBlue"] || 0) * 255;
@@ -1188,7 +1141,7 @@ var ParticleSystem = cc.Class({
             this.tangentialAccelVar = parseFloat(dict["tangentialAccelVariance"] || 0);
 
             // rotation is dir
-            var locRotationIsDir = dict["rotationIsDir"] || "";
+            let locRotationIsDir = dict["rotationIsDir"] || "";
             if (locRotationIsDir !== null) {
                 locRotationIsDir = locRotationIsDir.toString().toLowerCase();
                 this.rotationIsDir = (locRotationIsDir === "true" || locRotationIsDir === "1");
@@ -1225,7 +1178,7 @@ var ParticleSystem = cc.Class({
             oldFrame.off('load', this._onTextureLoaded, this);
         }
 
-        var spriteFrame = this._renderSpriteFrame = this._renderSpriteFrame || this._spriteFrame;
+        let spriteFrame = this._renderSpriteFrame = this._renderSpriteFrame || this._spriteFrame;
         if (spriteFrame) {
             if (spriteFrame.textureLoaded()) {
                 this._onTextureLoaded(null);
@@ -1243,27 +1196,16 @@ var ParticleSystem = cc.Class({
         material.updateHash();
     },
 
-    _updateBlendFunc: function (updateHash) {
-        if (this._material) {
-            var pass = this._material._mainTech.passes[0];
-            pass.setBlend(
-                gfx.BLEND_FUNC_ADD,
-                this._srcBlendFactor, this._dstBlendFactor,
-                gfx.BLEND_FUNC_ADD,
-                this._srcBlendFactor, this._dstBlendFactor
-            );
-            if (updateHash) {
-                this._material.updateHash();
-            }
-        }
-    },
-
     _activateMaterial: function () {
         if (!this._material) {
             this._material = new renderEngine.SpriteMaterial();
             this._material.useTexture = true;
             this._material.useModel = true;
             this._material.useColor = false;
+        }
+
+        if (!this._ia) {
+            ParticleSystem._assembler.createIA(this);
         }
 
         if (!this._texture || !this._texture.loaded) {
@@ -1287,6 +1229,8 @@ var ParticleSystem = cc.Class({
             }
             return;
         }
+        this.resetSystem();
+        this.stopSystem();
         this.disableRender();
         if (this.autoRemoveOnFinish && this._stopped) {
             this.node.destroy();
